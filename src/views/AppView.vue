@@ -6,6 +6,7 @@
     </div>
     <div v-if="uploadedImageUrl">
         <button v-if="editValue > 0" @click="handleApplyChanges">Apply Changes</button>
+        <button v-if="appliedImageData" @click="handleUndo">Undo</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
@@ -55,7 +56,6 @@ export default {
             }
 
             this.sessionId = sessionId;
-            console.log(this.sessionId);
         },
         generateSessionId(){
             const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -164,11 +164,12 @@ export default {
             })
             .then(response => response.json())
             .then(data => {
+                console.log(data.processedImage);
                 const img = new Image();
                 img.onload = function() {
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
                 };
                 img.src = `data:image/jpeg;base64,${data.processedImage}`;
             })
@@ -183,7 +184,7 @@ export default {
             const sessionId = this.sessionId;
 
             this.$nextTick( 
-                this.saveCanvasVersion(canvasData, editType, editValue, sessionId)
+                    this.saveCanvasVersion(canvasData, editType, editValue, sessionId)
                 );
         },
         saveCanvasVersion(canvasData, editType, editValue, sessionId) {
@@ -207,7 +208,34 @@ export default {
             .catch(error => {
                 console.error('Error saving canvas version:', error);
             });
-    },
+        },
+        handleUndo() {
+            if (this.currentVersionIndex > 0) {
+                const newIndex = this.currentVersionIndex +- 1;
+                this.$nextTick(
+                    this.getVersion(newIndex)
+                );
+            }   
+        },
+        getVersion(newIndex){
+            const canvas = this.$refs.canvas;
+
+            fetch(`${process.env.VUE_APP_SERVER_URL}/get-version/${newIndex}`)
+                    .then(response => response.json())
+                    .then(data => {           
+                        console.log(data.imageData.image_data)         
+                        const img = new Image();
+                        img.onload = function () {
+                            const ctx = canvas.getContext('2d');
+                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                        };
+                        img.src = `${data.imageData.image_data}`;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching previous version:', error);
+                    })
+        },
     }
 }
 </script>
