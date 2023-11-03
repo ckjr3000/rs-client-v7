@@ -9,6 +9,7 @@
         <button v-if="appliedImageData" @click="handleUndo">Undo</button>
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
+        <button v-if="changesApplied" @click="handleSave">Save Image</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
@@ -43,6 +44,7 @@ export default {
             appliedImageData: null,
             currentVersionIndex: -1,
             redoAvailable: false,
+            changesApplied: false,
         }
     },
     mounted(){
@@ -189,6 +191,8 @@ export default {
             this.$nextTick( 
                     this.saveCanvasVersion(canvasData, editType, editValue, sessionId)
                 );
+
+            this.changesApplied = true;    
         },
         saveCanvasVersion(canvasData, editType, editValue, sessionId) {
             fetch(`${process.env.VUE_APP_SERVER_URL}/save-version`, {
@@ -268,6 +272,22 @@ export default {
                 .catch((error) => {
                 console.error("Error loading image:", error);
             });
+        },
+        handleSave(){
+            const canvas = this.$refs.canvas;
+  
+            const tempCanvas = document.createElement("canvas");
+            const tempContext = tempCanvas.getContext("2d");
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            tempContext.filter = `blur(${this.blurValue}px)`;
+            tempContext.drawImage(canvas, 0, 0);
+
+            const link = document.createElement("a");
+            link.href = tempCanvas.toDataURL("image/jpg");
+            link.download = "rs_image.jpg";
+            link.click();
         },
     }
 }
