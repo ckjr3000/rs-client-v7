@@ -7,6 +7,7 @@
     <div v-if="uploadedImageUrl">
         <button v-if="editValue > 0" @click="handleApplyChanges">Apply Changes</button>
         <button v-if="appliedImageData" @click="handleUndo">Undo</button>
+        <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
@@ -40,6 +41,7 @@ export default {
             imageData: null,
             appliedImageData: null,
             currentVersionIndex: -1,
+            redoAvailable: false,
         }
     },
     mounted(){
@@ -212,18 +214,27 @@ export default {
         handleUndo() {
             if (this.currentVersionIndex > 0) {
                 const newIndex = this.currentVersionIndex +- 1;
+                this.redoAvailable = true;
                 this.$nextTick(
                     this.getVersion(newIndex)
                 );
             }   
+        },
+        handleRedo() {
+            if(this.redoAvailable){
+                const newIndex = this.currentVersionIndex + 1;
+                this.$nextTick(() => {
+                    this.getVersion(newIndex)
+                    this.redoAvailable = false;
+                });
+            }
         },
         getVersion(newIndex){
             const canvas = this.$refs.canvas;
 
             fetch(`${process.env.VUE_APP_SERVER_URL}/get-version/${newIndex}`)
                     .then(response => response.json())
-                    .then(data => {           
-                        console.log(data.imageData.image_data)         
+                    .then(data => {                
                         const img = new Image();
                         img.onload = function () {
                             const ctx = canvas.getContext('2d');
@@ -231,6 +242,7 @@ export default {
                             ctx.drawImage(img, 0, 0);
                         };
                         img.src = `${data.imageData.image_data}`;
+                        this.currentVersionIndex = newIndex;
                     })
                     .catch(error => {
                         console.error('Error fetching previous version:', error);
