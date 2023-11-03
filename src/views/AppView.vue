@@ -5,7 +5,7 @@
       <button @click="handleUploadClick">Upload Image</button>
     </div>
     <div v-if="uploadedImageUrl">
-        <button v-if="editValue > 0" @click="handleApplyChanges">Apply Changes</button>
+        <button v-if="editValue > 0 || editType === 'glitch'" @click="handleApplyChanges">Apply Changes</button>
         <button v-if="appliedImageData" @click="handleUndo">Undo</button>
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
@@ -26,11 +26,14 @@
 
         <button value="saturation" @click="handleEditSelect">Saturation</button>
         <input v-if="editType === 'saturation'" type="range" min="0" max="20" @change="handleValueChange">
+
+        <button value="glitch" @click="handleGlitch">Glitch!</button>
     </div>
 </template>
 
 <script>
 import { resizeImage } from '../assets/js/resize.js'
+import { glitchImage } from '../assets/js/glitch'
 
 export default {
     data(){
@@ -181,6 +184,19 @@ export default {
             .catch(error => {
                 console.error('Error sending data to the server:', error);
             });
+        },
+        handleGlitch(){
+            const canvas = this.$refs.canvas;
+            this.editType = 'glitch';
+
+            const glitchParams = {
+                seed: Math.floor(Math.random() * 99),
+                quality: Math.floor(Math.random() * 99),
+                amount: Math.floor(Math.random() * 99),
+                iterations: Math.floor(Math.random() * 50),
+            };
+
+            glitchImage(canvas, glitchParams);
         },
         handleApplyChanges() {
             const canvasData = this.$refs.canvas.toDataURL("image/jpeg");
