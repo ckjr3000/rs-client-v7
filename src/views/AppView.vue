@@ -8,6 +8,7 @@
         <button v-if="editValue > 0" @click="handleApplyChanges">Apply Changes</button>
         <button v-if="appliedImageData" @click="handleUndo">Undo</button>
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
+        <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
@@ -247,6 +248,26 @@ export default {
                     .catch(error => {
                         console.error('Error fetching previous version:', error);
                     })
+        },
+        handleReset(){
+            const canvas = this.$refs.canvas;
+            const context = canvas.getContext("2d");
+            context.clearRect(0, 0, canvas.width, canvas.height);
+  
+            const img = new Image();
+            img.onload = () => {
+                context.drawImage(img, 0, 0);
+            };
+    
+            fetch(this.uploadedImageUrl)
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                const blob = new Blob([buffer], { type: "image/*" });
+                img.src = URL.createObjectURL(blob);
+                })
+                .catch((error) => {
+                console.error("Error loading image:", error);
+            });
         },
     }
 }
