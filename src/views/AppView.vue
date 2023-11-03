@@ -31,18 +31,44 @@ import { resizeImage } from '../assets/js/resize.js'
 export default {
     data(){
         return {
+            sessionId: null,
             uploadedImageUrl: null,
             showCanvas: false,
             editType: null,
             editValue: 0,
             imageData: null,
             appliedImageData: null,
+            currentVersionIndex: -1,
         }
     },
     mounted(){
         this.canvas = this.$refs.canvas;
+        this.retrieveSessionId();
     },
     methods: {
+        retrieveSessionId(){
+            let sessionId = sessionStorage.getItem('sessionId');
+
+            if (sessionId === null) {
+                sessionId = this.generateSessionId();
+                sessionStorage.setItem('sessionId', sessionId);
+            }
+
+            this.sessionId = sessionId;
+            console.log(this.sessionId);
+        },
+        generateSessionId(){
+            const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            const sessionIdLength = 16;
+            let sessionId = '';
+
+            for (let i = 0; i < sessionIdLength; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                sessionId += characters.charAt(randomIndex);
+            }
+
+            return sessionId;
+        },
         handleUploadClick(){
             this.showCanvas = true;
             const input = document.createElement("input");
@@ -150,9 +176,38 @@ export default {
                 console.error('Error sending data to the server:', error);
             });
         },
-        handleApplyChanges(){
-            // send canvas version to db
-        }
+        handleApplyChanges() {
+            const canvasData = this.$refs.canvas.toDataURL("image/jpeg");
+            const editType = this.editType;
+            const editValue = this.editValue;
+            const sessionId = this.sessionId;
+
+            this.$nextTick( 
+                this.saveCanvasVersion(canvasData, editType, editValue, sessionId)
+                );
+        },
+        saveCanvasVersion(canvasData, editType, editValue, sessionId) {
+            fetch(`${process.env.VUE_APP_SERVER_URL}/save-version`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    canvasData,
+                    editType,
+                    editValue,
+                    sessionId,
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                this.currentVersionIndex = data.versionIndex;
+                this.appliedImageData = canvasData;
+            })
+            .catch(error => {
+                console.error('Error saving canvas version:', error);
+            });
+    },
     }
 }
 </script>
