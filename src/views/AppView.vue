@@ -19,13 +19,13 @@
         <input v-if="editType === 'pixelation'" type="range" min="0" max="20" @change="handleValueChange">
 
         <button value="hue" @click="handleEditSelect">Hue</button>
-        <input v-if="editType === 'hue'" type="range" min="0" max="20" @change="handleValueChange">
+        <input v-if="editType === 'hue'" type="range" min="0" max="360" @change="handleValueChange">
 
         <button value="brightness" @click="handleEditSelect">Brightness</button>
-        <input v-if="editType === 'brightness'" type="range" min="0" max="20" @change="handleValueChange">
+        <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" @change="handleValueChange">
 
         <button value="saturation" @click="handleEditSelect">Saturation</button>
-        <input v-if="editType === 'saturation'" type="range" min="0" max="20" @change="handleValueChange">
+        <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" @change="handleValueChange">
 
         <button value="glitch" @click="handleGlitch">Glitch!</button>
     </div>
@@ -172,7 +172,6 @@ export default {
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data.processedImage);
                 const img = new Image();
                 img.onload = function() {
                     const ctx = canvas.getContext('2d');
