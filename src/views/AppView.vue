@@ -46,6 +46,9 @@
 
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
+        <div v-if="overlaySelected">
+            <button value="transparency" @click="handleTransparency">Layer Transparency</button>
+        </div>
         <p>Select an overlay:</p>
         <button @click="handleUploadClick">Upload Your Own</button>
         <div v-if="userOverlayUploads.length > 0">
@@ -77,7 +80,6 @@ export default {
         return {
             sessionId: null,
             uploadedImageUrl: null,
-            secondLayer: false,
             showCanvas: false,
             editType: null,
             editValue: 0,
@@ -255,12 +257,10 @@ export default {
             scalingStartPos: { x: 0, y: 0 },
             isMoving: false,
             movingStartPos: { x: 0, y: 0 },
-            secondLayerPosition: { x: 0, y: 0 },
-            secondLayerSize: { width: 0, height: 0 },
-            isSecondLayerScaling: false,
-            isSecondLayerMoving: false,
-            secondLayerScalingStartPos: { x: 0, y: 0 },
-            secondLayerMovingStartPos: { x: 0, y: 0 },
+            rotationStartPos: { x: 0, y: 0},
+            rotationStartAngle: 0,
+            overlayRotation: 0,
+            isRotating: false,
         }
     },
     mounted(){
@@ -456,20 +456,32 @@ export default {
             img.onload = () => {
                 this.offscreenContext.drawImage(img, 0, 0);
 
-                // Draw the overlay if one is selected
                 if (this.isOverlaySelected && this.overlayImage !== null) {
                     const width = this.overlaySize.width;
                     const height = this.overlaySize.height;
                     const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
                     const y = this.overlayPosition.y + this.overlayImage.height / 2 - height / 2;
 
+                    // Save the current transformation matrix
+                    this.offscreenContext.save();
+
+                    // Translate to the center of the overlay
+                    this.offscreenContext.translate(x + width / 2, y + height / 2);
+
+                    // Apply rotation
+                    this.offscreenContext.rotate(this.overlayRotation);
+
+                    // Draw the rotated overlay
                     this.offscreenContext.drawImage(
                         this.overlayImage,
-                        x,
-                        y,
+                        -width / 2,
+                        -height / 2,
                         width,
                         height
                     );
+
+                    // Restore the original transformation matrix
+                    this.offscreenContext.restore();
                 }
 
                 // Clear the main canvas and draw the offscreen canvas on it
@@ -497,6 +509,11 @@ export default {
                 this.isScaling = true;
                 this.scalingStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
                 this.scalingStartPos = { x, y };
+            } else if (event.ctrlKey) {
+                // start rotating
+                this.isRotating = true;
+                this.rotationStartPos = { x, y };
+                this.rotationStartAngle = Math.atan2(y - this.overlayPosition.y, x - this.overlayPosition.x);
             } else {
                 // Start moving
                 this.isMoving = true;
@@ -511,33 +528,53 @@ export default {
             const y = event.clientY - rect.top;
 
             if (this.isScaling && this.overlayImage) {
-            const scaleRatioX = (x - this.scalingStartPos.x) / 100;
-            const scaleRatioY = (y - this.scalingStartPos.y) / 100;
+                const scaleRatioX = (x - this.scalingStartPos.x) / 100;
+                const scaleRatioY = (y - this.scalingStartPos.y) / 100;
 
-            // Scale while maintaining aspect ratio
-            if (event.shiftKey) {
-                const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
-                this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
-                this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
-            } else {
-                this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
-                this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
-            }
+                if (event.shiftKey) {
+                    const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
+                    this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
+                    this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
+                } else {
+                    this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
+                    this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
+                }
 
-            this.drawCanvas();
+                this.drawCanvas();
+            } else if (this.isRotating && this.overlayImage) {
+                const angle = Math.atan2(y - (this.overlayPosition.y + this.overlaySize.height / 2), x - (this.overlayPosition.x + this.overlaySize.width / 2));
+                const rotationDelta = angle - this.rotationStartAngle;
+
+                // Adjust the rotation sensitivity
+                const rotationScalingFactor = 0.01;
+
+                // Cap the rotation speed to the maximum value
+                this.overlayRotation += rotationDelta * rotationScalingFactor;
+
+                // Define a maximum rotation speed (experiment with different values)
+                const maxRotationSpeed = 5;
+
+                // Cap the rotation speed
+                this.overlayRotation = Math.min(this.overlayRotation, maxRotationSpeed);
+
+                // Normalize the rotation to keep it within the range [0, 2π]
+                this.overlayRotation = (this.overlayRotation + 2 * Math.PI) % (2 * Math.PI);
+
+                this.drawCanvas();
             } else if (this.isMoving && this.overlayImage) {
-            const deltaX = x - this.movingStartPos.x;
-            const deltaY = y - this.movingStartPos.y;
+                const deltaX = x - this.movingStartPos.x;
+                const deltaY = y - this.movingStartPos.y;
 
-            this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
-            this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
+                this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
+                this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
 
-            this.drawCanvas();
+                this.drawCanvas();
             }
         },
         handleOverlayMouseUp() {
             this.isScaling = false;
             this.isMoving = false;
+            this.isRotating = false;
         },
         handleOverlayTouchStart(e) {
             const touch = e.touches[0];
@@ -586,6 +623,10 @@ export default {
             const dx = point1.clientX - point2.clientX;
             const dy = point1.clientY - point2.clientY;
             return Math.sqrt(dx * dx + dy * dy);
+        },
+        clearCanvas() {
+            const canvas = this.$refs.canvas;
+            this.context.clearRect(0, 0, canvas.width, canvas.height);
         },
         handleApplyChanges() {
             const canvas = this.$refs.canvas;
