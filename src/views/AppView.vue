@@ -16,7 +16,7 @@
     </div>
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
-        <button v-if="editValue > 0 || editType === 'glitch'" @click="handleApplyChanges">Apply Changes</button>
+        <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges">Apply Changes</button>
         <button v-if="appliedImageData" @click="handleUndo">Undo</button>
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
@@ -46,7 +46,6 @@
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
         <p>Select an overlay:</p>
-        <button v-if="isOverlaySelected" @click="saveCanvas">Save Image</button>
         <div id="overlay-options">
             <img
             v-for="overlay in overlayOptions"
@@ -408,6 +407,8 @@ export default {
             this.scalingStartPos = { x: 0, y: 0 };
         },
         drawCanvas() {
+            console.log('drawCanvas firing')
+            console.log(this.isOverlaySelected && this.overlayImage !== null)
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
 
@@ -415,30 +416,42 @@ export default {
             this.offscreenCanvas.height = canvas.height;
             this.offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Draw the current canvas state (uploaded image or applied changes)
             const img = new Image();
-            img.crossOrigin="Anonymous"
+            img.crossOrigin = "Anonymous";
             img.onload = () => {
-            this.offscreenContext.drawImage(img, 0, 0);
+                console.log('img loaded')
+                this.offscreenContext.drawImage(img, 0, 0);
 
-            if (this.isOverlaySelected && this.overlayImage) {
-                const width = this.overlaySize.width;
-                const height = this.overlaySize.height;
-                const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
-                const y = this.overlayPosition.y + this.overlayImage.height / 2 - height / 2;
+                // Draw the overlay if one is selected
+                if (this.isOverlaySelected && this.overlayImage !== null) {
+                    console.log('conditional code firing')
+                    const width = this.overlaySize.width;
+                    const height = this.overlaySize.height;
+                    const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
+                    const y = this.overlayPosition.y + this.overlayImage.height / 2 - height / 2;
 
-                this.offscreenContext.drawImage(
-                this.overlayImage,
-                x,
-                y,
-                width,
-                height
-                );
-            }
+                    this.offscreenContext.drawImage(
+                        this.overlayImage,
+                        x,
+                        y,
+                        width,
+                        height
+                    );
+                }
 
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            context.drawImage(this.offscreenCanvas, 0, 0);
+                // Clear the main canvas and draw the offscreen canvas on it
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                context.drawImage(this.offscreenCanvas, 0, 0);
             };
-            img.src = this.uploadedImageUrl;
+
+            if(this.changesApplied === true){
+                const dataUrl = this.appliedImageData;
+                console.log(dataUrl);
+                img.src = dataUrl;
+            } else {
+                img.src = this.uploadedImageUrl;
+            }
         },
         handleOverlayMouseDown(event) {
             const canvas = this.$refs.canvas;
@@ -543,16 +556,47 @@ export default {
             return Math.sqrt(dx * dx + dy * dy);
         },
         handleApplyChanges() {
-            const canvasData = this.$refs.canvas.toDataURL("image/jpeg");
+            const canvas = this.$refs.canvas;
+
+            // Create a temporary canvas for applying changes
+            const tempCanvas = document.createElement("canvas");
+            const tempContext = tempCanvas.getContext("2d");
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            // Apply overlay if selected
+            if (this.isOverlaySelected && this.overlayImage) {
+                const width = this.overlaySize.width;
+                const height = this.overlaySize.height;
+                const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
+                const y = this.overlayPosition.y + this.overlayImage.height / 2 - height / 2;
+
+                tempContext.drawImage(
+                    this.overlayImage,
+                    x,
+                    y,
+                    width,
+                    height
+                );
+            }
+
+            tempContext.drawImage(canvas, 0, 0);
+
+            const flattenedCanvasData = tempCanvas.toDataURL("image/jpeg");
+
             const editType = this.editType;
             const editValue = this.editValue;
             const sessionId = this.sessionId;
 
-            this.$nextTick( 
-                    this.saveCanvasVersion(canvasData, editType, editValue, sessionId)
-                );
+            this.saveCanvasVersion(flattenedCanvasData, editType, editValue, sessionId);
 
-            this.changesApplied = true;    
+            this.appliedImageData = flattenedCanvasData;
+            this.isOverlaySelected = false;
+            this.overlayImage = null;
+            this.overlayPosition = { x: 0, y: 0 };
+            this.overlaySize = { width: 500, height: 500 };
+
+            this.changesApplied = true;
         },
         saveCanvasVersion(canvasData, editType, editValue, sessionId) {
             fetch(`${process.env.VUE_APP_SERVER_URL}/save-version`, {
@@ -641,7 +685,6 @@ export default {
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
 
-            tempContext.filter = `blur(${this.blurValue}px)`;
             tempContext.drawImage(canvas, 0, 0);
 
             const link = document.createElement("a");
