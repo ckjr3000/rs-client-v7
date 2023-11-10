@@ -40,12 +40,22 @@
 
         <button value="glitch" @click="handleGlitch">Glitch!</button>
 
-        <button value="overlay" @click="handleOverlay">Overlay</button>
+        <button value="overlay" @click="handleEditSelect">Overlay</button>
+
     </div>
 
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
         <p>Select an overlay:</p>
+        <button @click="handleUploadClick">Upload Your Own</button>
+        <div v-if="userOverlayUploads.length > 0">
+            <img
+            v-for="overlay in userOverlayUploads"
+            :key="overlay.id"
+            :src="overlay.src"
+            @click="selectOverlay(overlay)"
+            >
+        </div>
         <div id="overlay-options">
             <img
             v-for="overlay in overlayOptions"
@@ -67,6 +77,7 @@ export default {
         return {
             sessionId: null,
             uploadedImageUrl: null,
+            secondLayer: false,
             showCanvas: false,
             editType: null,
             editValue: 0,
@@ -233,6 +244,7 @@ export default {
                 src: require('@/assets/overlays/39.png')
                 },
             ],
+            userOverlayUploads: [],
             isOverlaySelected: false,
             overlayPosition: { x: 0, y: 0 },
             overlaySize: { width: 500, height: 500 },
@@ -243,6 +255,12 @@ export default {
             scalingStartPos: { x: 0, y: 0 },
             isMoving: false,
             movingStartPos: { x: 0, y: 0 },
+            secondLayerPosition: { x: 0, y: 0 },
+            secondLayerSize: { width: 0, height: 0 },
+            isSecondLayerScaling: false,
+            isSecondLayerMoving: false,
+            secondLayerScalingStartPos: { x: 0, y: 0 },
+            secondLayerMovingStartPos: { x: 0, y: 0 },
         }
     },
     mounted(){
@@ -279,7 +297,11 @@ export default {
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
-            input.addEventListener("change", this.handleUpload.bind(this));
+            if(this.editType === 'overlay'){
+                input.addEventListener("change", this.uploadOverlay.bind(this));
+            } else {
+                input.addEventListener("change", this.handleUpload.bind(this));
+            }
             input.click();
         },
         handleUpload(e){
@@ -394,9 +416,6 @@ export default {
 
             glitchImage(canvas, glitchParams);
         },
-        handleOverlay(){
-            this.editType = 'overlay';
-        },
         selectOverlay(overlay){
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
@@ -406,9 +425,24 @@ export default {
             this.isScaling = false;
             this.scalingStartPos = { x: 0, y: 0 };
         },
+        uploadOverlay(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                const dataUrl = event.target.result;
+
+                const overlayObject = {
+                    id: this.overlayOptions.length + 1,
+                    src: dataUrl
+                };
+
+                this.userOverlayUploads.push(overlayObject);
+            };
+
+            reader.readAsDataURL(file);
+        },
         drawCanvas() {
-            console.log('drawCanvas firing')
-            console.log(this.isOverlaySelected && this.overlayImage !== null)
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
 
@@ -420,12 +454,10 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = () => {
-                console.log('img loaded')
                 this.offscreenContext.drawImage(img, 0, 0);
 
                 // Draw the overlay if one is selected
                 if (this.isOverlaySelected && this.overlayImage !== null) {
-                    console.log('conditional code firing')
                     const width = this.overlaySize.width;
                     const height = this.overlaySize.height;
                     const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
