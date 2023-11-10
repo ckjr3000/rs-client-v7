@@ -46,8 +46,9 @@
 
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
-        <div v-if="overlaySelected">
+        <div v-if="isOverlaySelected">
             <button value="transparency" @click="handleTransparency">Layer Transparency</button>
+            <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
         </div>
         <p>Select an overlay:</p>
         <button @click="handleUploadClick">Upload Your Own</button>
@@ -261,6 +262,7 @@ export default {
             rotationStartAngle: 0,
             overlayRotation: 0,
             isRotating: false,
+            transparencySelected: false,
         }
     },
     mounted(){
@@ -416,6 +418,22 @@ export default {
 
             glitchImage(canvas, glitchParams);
         },
+        handleTransparency(){
+            this.transparencySelected = true;
+        },
+        adjustOverlayTransparency(e) {
+            const transparencyValue = e.target.value;
+
+            // Assuming this.overlayImage is the reference to your overlay <img> element
+            if (this.overlayImage) {
+                const opacity = transparencyValue / 10; // Adjust the divisor based on your needs
+                this.overlayImage.style.opacity = opacity.toString();
+            }
+
+            this.$nextTick(() => {
+                this.drawCanvas();
+            });
+        },
         selectOverlay(overlay){
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
@@ -471,6 +489,9 @@ export default {
                     // Apply rotation
                     this.offscreenContext.rotate(this.overlayRotation);
 
+                    // Set opacity
+                    this.offscreenContext.globalAlpha = this.overlayImage.style.opacity || 1;
+
                     // Draw the rotated overlay
                     this.offscreenContext.drawImage(
                         this.overlayImage,
@@ -489,9 +510,8 @@ export default {
                 context.drawImage(this.offscreenCanvas, 0, 0);
             };
 
-            if(this.changesApplied === true){
+            if (this.changesApplied === true) {
                 const dataUrl = this.appliedImageData;
-                console.log(dataUrl);
                 img.src = dataUrl;
             } else {
                 img.src = this.uploadedImageUrl;
