@@ -285,7 +285,7 @@ export default {
     methods: {
         detectMobileOrTablet() {
             const screenWidth = window.innerWidth;
-            const isMobileOrTablet = screenWidth < 768; // You can adjust this threshold as needed
+            const isMobileOrTablet = screenWidth < 768; 
 
             return isMobileOrTablet;
         },
