@@ -851,7 +851,7 @@ export default {
         handleShare() {
             const canvas = this.$refs.canvas;
             console.log('trying to share')
-            // Create a temporary canvas and draw the edited image onto it
+
             const tempCanvas = document.createElement("canvas");
             const tempContext = tempCanvas.getContext("2d");
             tempCanvas.width = canvas.width;
