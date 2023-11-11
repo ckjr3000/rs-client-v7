@@ -21,22 +21,23 @@
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
         <button v-if="changesApplied" @click="handleSave">Save Image</button>
+        <button v-if="changesApplied" @click="handleShare">Share Image</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
-        <input v-if="editType === 'blur'" type="range" min="0" max="20" @change="handleValueChange">
+        <input v-if="editType === 'blur'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
 
         <button value="pixelation" @click="handleEditSelect">Pixelation</button>
-        <input v-if="editType === 'pixelation'" type="range" min="0" max="20" @change="handleValueChange">
+        <input v-if="editType === 'pixelation'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
 
         <button value="hue" @click="handleEditSelect">Hue</button>
-        <input v-if="editType === 'hue'" type="range" min="0" max="360" @change="handleValueChange">
+        <input v-if="editType === 'hue'" type="range" min="0" max="360" defaultValue="0" @change="handleValueChange">
 
         <button value="brightness" @click="handleEditSelect">Brightness</button>
-        <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" @change="handleValueChange">
+        <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
 
         <button value="saturation" @click="handleEditSelect">Saturation</button>
-        <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" @change="handleValueChange">
+        <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
 
         <button value="glitch" @click="handleGlitch">Glitch!</button>
 
@@ -769,6 +770,14 @@ export default {
                 .catch((error) => {
                 console.error("Error loading image:", error);
             });
+
+            fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
+                    method: "POST",
+                })
+                .then((res) => res.json())
+            
+            this.changesApplied = false;
+            this.appliedImageData = null;
         },
         handleSave(){
             const canvas = this.$refs.canvas;
@@ -785,6 +794,7 @@ export default {
             link.download = "rs_image.jpg";
             link.click();
         },
+        handleShare(){},
     }
 }
 </script>
