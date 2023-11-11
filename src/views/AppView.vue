@@ -356,7 +356,6 @@ export default {
                         canvas.height = img.height;
                         context.drawImage(img, 0, 0);
 
-                        // Convert the image data to a base64 string and store it
                         this.imageData = canvas.toDataURL("image/jpeg");
                     };
                     img.crossOrigin="anonymous";
