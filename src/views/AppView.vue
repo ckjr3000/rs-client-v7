@@ -48,8 +48,10 @@
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
         <div v-if="isOverlaySelected">
-            <button value="transparency" @click="handleTransparency">Layer Transparency</button>
+            <button value="transparency" @click="handleTransparency">Overlay Transparency</button>
             <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
+            <button @click="toggleScaling">Resize</button>
+            <button @click="toggleRotating">Rotate</button>
         </div>
         <p>Select an overlay:</p>
         <button @click="handleUploadClick">Upload Your Own</button>
@@ -76,10 +78,20 @@
 <script>
 import { resizeImage } from '../assets/js/resize.js'
 import { glitchImage } from '../assets/js/glitch'
+import VueMq from 'vue-mq';
+
+Vue.use(VueMq, {
+    breakpoints: {
+        mobile: 768,
+        tablet: 1024,
+        desktop: Infinity,
+    },
+});
 
 export default {
     data(){
         return {
+            isMobileOrTablet: this.detectMobileOrTablet(),
             sessionId: null,
             uploadedImageUrl: null,
             showCanvas: false,
@@ -273,6 +285,10 @@ export default {
         this.offscreenContext = this.offscreenCanvas.getContext('2d')
     },
     methods: {
+        detectMobileOrTablet() {
+            const isMobileOrTablet = this.$mq === 'mobile' || this.$mq === 'tablet';
+            return isMobileOrTablet;
+        },
         retrieveSessionId(){
             let sessionId = sessionStorage.getItem('sessionId');
 
@@ -518,6 +534,18 @@ export default {
                 img.src = this.uploadedImageUrl;
             }
         },
+        toggleScaling() {
+            this.isScaling = !this.isScaling;
+            if (this.isScaling) {
+                this.isRotating = false;
+            }
+        },
+        toggleRotating() {
+            this.isRotating = !this.isRotating;
+            if (this.isRotating) {
+                this.isScaling = false;
+            }
+        },
         handleOverlayMouseDown(event) {
             const canvas = this.$refs.canvas;
             const rect = canvas.getBoundingClientRect();
@@ -603,24 +631,36 @@ export default {
                 // Single touch for moving the overlay
                 this.handleOverlayMouseDown(touch);
             } else if (e.touches.length === 2) {
-                // Two touches for scaling the overlay
+                // Two touches for scaling or rotating the overlay
                 this.handlePinchStart(e);
             }
         },
         handleOverlayTouchMove(e) {
             const touch = e.touches[0];
             if (e.touches.length === 1) {
-            // Single touch for moving the overlay
-            this.handleOverlayMouseMove(touch);
+                // Single touch for moving the overlay
+                this.handleOverlayMouseMove(touch);
+
+                // If scaling or rotating is active, turn them off
+                if (this.isScaling || this.isRotating) {
+                    this.isScaling = false;
+                    this.isRotating = false;
+                }
             } else if (e.touches.length === 2) {
-            // Two touches for scaling the overlay
-            this.handlePinchMove(e);
+                // Two touches for scaling the overlay
+                this.handlePinchMove(e);
             }
         },
         handleOverlayTouchEnd(e) {
             if (e.touches.length === 0) {
-            // No touches for ending scaling
-            this.handleOverlayMouseUp();
+                // No touches for ending scaling
+                this.handleOverlayMouseUp();
+
+                // If scaling or rotating is active, turn them off
+                if (this.isScaling || this.isRotating) {
+                    this.isScaling = false;
+                    this.isRotating = false;
+                }
             }
         },
         handlePinchStart(e) {
@@ -635,10 +675,22 @@ export default {
             const pinchDistance = this.getDistance(touch1, touch2);
 
             const scaleRatio = pinchDistance / this.pinchStartDistance;
-            this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
-            this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
 
-            this.drawCanvas();
+            if (this.isScaling) {
+                // Scaling is active
+                this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
+                this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
+                this.drawCanvas();
+            } else if (this.isRotating) {
+                // Rotating is active (you can add your rotation logic here)
+                const angle = Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX);
+                const rotationDelta = angle - this.rotationStartAngle;
+
+                // Add your rotation logic here
+
+                // Draw canvas
+                this.drawCanvas();
+            }
         },
         getDistance(point1, point2) {
             const dx = point1.clientX - point2.clientX;
