@@ -21,7 +21,7 @@
         <button v-if="redoAvailable" @click="handleRedo">Redo</button>
         <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
         <button v-if="changesApplied" @click="handleSave">Save Image</button>
-        <button v-if="changesApplied" @click="handleShare">Share Image</button>
+        <button v-if="changesApplied && shareSupported" @click="handleShare" id="shareButton">Share Image</button>
         <h2>Edit:</h2>
 
         <button value="blur" @click="handleEditSelect">Blur</button>
@@ -78,21 +78,14 @@
 <script>
 import { resizeImage } from '../assets/js/resize.js'
 import { glitchImage } from '../assets/js/glitch'
-import VueMq from 'vue-mq';
 
-Vue.use(VueMq, {
-    breakpoints: {
-        mobile: 768,
-        tablet: 1024,
-        desktop: Infinity,
-    },
-});
 
 export default {
     data(){
         return {
             isMobileOrTablet: this.detectMobileOrTablet(),
             sessionId: null,
+            shareSupported: false,
             uploadedImageUrl: null,
             showCanvas: false,
             editType: null,
@@ -280,13 +273,20 @@ export default {
     },
     mounted(){
         this.canvas = this.$refs.canvas;
+        console.log(this.$refs);
         this.retrieveSessionId();
         this.offscreenCanvas = document.createElement('canvas');
         this.offscreenContext = this.offscreenCanvas.getContext('2d')
+
+        if(navigator.share){
+            this.shareSupported = true;
+        }
     },
     methods: {
         detectMobileOrTablet() {
-            const isMobileOrTablet = this.$mq === 'mobile' || this.$mq === 'tablet';
+            const screenWidth = window.innerWidth;
+            const isMobileOrTablet = screenWidth < 768; // You can adjust this threshold as needed
+
             return isMobileOrTablet;
         },
         retrieveSessionId(){
@@ -462,20 +462,23 @@ export default {
         },
         uploadOverlay(e) {
             const file = e.target.files[0];
-            const reader = new FileReader();
 
-            reader.onload = (event) => {
-                const dataUrl = event.target.result;
+            resizeImage(file, 1080, 1080, (resizedBlob) => {
+                const reader = new FileReader();
 
-                const overlayObject = {
-                    id: this.overlayOptions.length + 1,
-                    src: dataUrl
+                reader.onload = (event) => {
+                    const dataUrl = event.target.result;
+
+                    const overlayObject = {
+                        id: this.overlayOptions.length + 1,
+                        src: dataUrl
+                    };
+
+                    this.userOverlayUploads.push(overlayObject);
                 };
 
-                this.userOverlayUploads.push(overlayObject);
-            };
-
-            reader.readAsDataURL(file);
+                reader.readAsDataURL(resizedBlob);
+            })
         },
         drawCanvas() {
             const canvas = this.$refs.canvas;
@@ -846,11 +849,40 @@ export default {
             link.download = "rs_image.jpg";
             link.click();
         },
-        handleShare(){},
+        handleShare() {
+            const canvas = this.$refs.canvas;
+            console.log('trying to share')
+            // Create a temporary canvas and draw the edited image onto it
+            const tempCanvas = document.createElement("canvas");
+            const tempContext = tempCanvas.getContext("2d");
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            tempContext.drawImage(canvas, 0, 0);
+
+            // Convert the temporary canvas to a data URL (base64-encoded image)
+            const imageDataURL = tempCanvas.toDataURL("image/jpeg");
+
+            // Use the Web Share API to share the image
+            if (navigator.share) {
+                navigator.share({
+                title: 'My Edited Image',
+                files: [new File([this.dataURLtoBlob(imageDataURL)], 'rs_image.jpg')],
+                })
+                .then(() => console.log('Successful share'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                console.log('Web Share API not supported');
+            }
+        },
     }
 }
 </script>
 
 <style>
+
+canvas {
+    margin-top: 5vh;
+    max-width: 33vw;
+}
 
 </style>
