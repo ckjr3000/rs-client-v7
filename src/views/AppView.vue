@@ -731,6 +731,9 @@ export default {
                 console.log('img loaded')
                 this.offscreenContext.drawImage(img, 0, 0);
 
+                console.log(this.isOverlaySelected)
+                console.log(this.overlayImage)
+
                 if (this.isOverlaySelected && this.overlayImage !== null) {
                     console.log('conditions met')
                     const width = this.overlaySize.width;
