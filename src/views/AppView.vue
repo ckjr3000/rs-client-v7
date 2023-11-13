@@ -769,14 +769,15 @@ export default {
                 // Clear the main canvas and draw the offscreen canvas on it
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(this.offscreenCanvas, 0, 0);
-            };
 
-            if (this.changesApplied === true) {
+                if (this.changesApplied === true) {
                 const dataUrl = this.appliedImageData;
                 img.src = dataUrl;
-            } else {
-                img.src = this.uploadedImageUrl;
-            }
+                } else {
+                    img.src = this.uploadedImageUrl;
+                }
+            };
+
         },
         toggleScaling() {
             this.isScaling = !this.isScaling;
