@@ -17,22 +17,22 @@
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
         <div class="edit-buttons">
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="button-tertiary">Apply Changes</button>
             </div>
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="appliedImageData" @click="handleUndo" class="button-tertiary">Undo</button>
             </div>
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="redoAvailable" @click="handleRedo" class="button-tertiary">Redo</button>
             </div>
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="appliedImageData" @click="handleReset" class="button-tertiary">Reset Image</button>
             </div>
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="changesApplied" @click="handleSave" class="button-tertiary">Save Image</button>
             </div>
-            <div class="button-">
+            <div class="button-input">
                 <button v-if="changesApplied && shareSupported" @click="handleShare" id="shareButton" class="button-tertiary">Share Image</button>
             </div>
         </div>
@@ -1130,7 +1130,7 @@ canvas {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    padding: 15px;
+    padding: 10px;
 }
 
 .edit-buttons .button-input button {
@@ -1181,14 +1181,36 @@ canvas {
 }
 
 @media only screen and (max-width: 890px) {
+    canvas {
+        max-width: 50vw;
+    }
+
     .edit-buttons .button-input {
-    padding: 5px;
+        padding: 0px 5px;
+    }
+
+    .edit-buttons .button-input button {
+        font-size: 15px;
+        padding: 15px;
+    }
 }
+
+@media only screen and (max-width: 420px) {
+
+    .edit-buttons .button-input {
+        padding: 2px 5px 2px 5px;
+        margin: 0px;
+    }
+
+    .edit-buttons .button-input button {
+        font-size: 15px;
+        padding: 10px;
+    }
 }
 
 @media only screen and (max-width: 400px) {
     canvas {
-        max-width: 90vw;
+        max-width: 80vw;
     }
 }
 
