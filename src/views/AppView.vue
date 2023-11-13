@@ -96,6 +96,7 @@
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            @touch="selectOverlay(overlay)"
             >
         </div>
         <p>Masks:</p>
@@ -723,6 +724,7 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
             img.onload = () => {
+                console.log('img loaded')
                 this.offscreenContext.drawImage(img, 0, 0);
 
                 if (this.isOverlaySelected && this.overlayImage !== null) {
