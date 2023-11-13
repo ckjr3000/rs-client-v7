@@ -701,7 +701,7 @@ export default {
                     const dataUrl = event.target.result;
 
                     const overlayObject = {
-                        id: this.overlayOptions.length + 1,
+                        id: this.userOverlayUploads.length + 1,
                         src: dataUrl
                     };
 
