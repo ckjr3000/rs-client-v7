@@ -12,50 +12,85 @@
     </canvas>
     <div v-if="!uploadedImageUrl">
       <p>Upload a selfie to get started:</p>
-      <button @click="handleUploadClick">Upload Image</button>
+      <button @click="handleUploadClick" id="upload-button" class="button-secondary">Upload Image</button>
     </div>
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
-        <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges">Apply Changes</button>
-        <button v-if="appliedImageData" @click="handleUndo">Undo</button>
-        <button v-if="redoAvailable" @click="handleRedo">Redo</button>
-        <button v-if="appliedImageData" @click="handleReset">Reset Image</button>
-        <button v-if="changesApplied" @click="handleSave">Save Image</button>
-        <button v-if="changesApplied && shareSupported" @click="handleShare" id="shareButton">Share Image</button>
+        <div class="edit-buttons">
+            <div class="button-">
+                <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="button-tertiary">Apply Changes</button>
+            </div>
+            <div class="button-">
+                <button v-if="appliedImageData" @click="handleUndo" class="button-tertiary">Undo</button>
+            </div>
+            <div class="button-">
+                <button v-if="redoAvailable" @click="handleRedo" class="button-tertiary">Redo</button>
+            </div>
+            <div class="button-">
+                <button v-if="appliedImageData" @click="handleReset" class="button-tertiary">Reset Image</button>
+            </div>
+            <div class="button-">
+                <button v-if="changesApplied" @click="handleSave" class="button-tertiary">Save Image</button>
+            </div>
+            <div class="button-">
+                <button v-if="changesApplied && shareSupported" @click="handleShare" id="shareButton" class="button-tertiary">Share Image</button>
+            </div>
+        </div>
         <h2>Edit:</h2>
 
-        <button value="blur" @click="handleEditSelect">Blur</button>
-        <input v-if="editType === 'blur'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+        <div class="edit-buttons">
+            <div class="button-input">
+                <button value="blur" @click="handleEditSelect" class="button-primary">Blur</button>
+                <input v-if="editType === 'blur'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+            </div>
 
-        <button value="pixelation" @click="handleEditSelect">Pixelation</button>
-        <input v-if="editType === 'pixelation'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+            <div class="button-input">
+                <button value="pixelation" @click="handleEditSelect" class="button-primary">Pixelation</button>
+                <input v-if="editType === 'pixelation'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+            </div>
 
-        <button value="hue" @click="handleEditSelect">Hue</button>
-        <input v-if="editType === 'hue'" type="range" min="0" max="360" defaultValue="0" @change="handleValueChange">
+            <div class="button-input">
+                <button value="hue" @click="handleEditSelect" class="button-primary">Hue</button>
+                <input v-if="editType === 'hue'" type="range" min="0" max="360" defaultValue="0" @change="handleValueChange">
+            </div>
 
-        <button value="brightness" @click="handleEditSelect">Brightness</button>
-        <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
+            <div class="button-input">
+                <button value="brightness" @click="handleEditSelect" class="button-primary">Brightness</button>
+                <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
+            </div>
 
-        <button value="saturation" @click="handleEditSelect">Saturation</button>
-        <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
+            <div class="button-input">
+                <button value="saturation" @click="handleEditSelect" class="button-primary">Saturation</button>
+                <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
+            </div>
 
-        <button value="glitch" @click="handleGlitch">Glitch!</button>
+            <div class="button-input">
+                <button value="glitch" @click="handleGlitch" class="button-primary">Glitch!</button>
+            </div>
 
-        <button value="overlay" @click="handleEditSelect">Overlay</button>
-
+            <div class="button-input">
+                <button value="overlay" @click="handleEditSelect" class="button-primary">Overlay</button>
+            </div>
+        </div>
     </div>
 
     <!-- overlay menu -->
     <div v-if="editType === 'overlay'">
-        <div v-if="isOverlaySelected">
-            <button value="transparency" @click="handleTransparency">Overlay Transparency</button>
-            <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
-            <button @click="toggleScaling">Resize</button>
-            <button @click="toggleRotating">Rotate</button>
+        <div v-if="isOverlaySelected" class="edit-buttons">
+            <div class="button-input">
+                <button value="transparency" @click="handleTransparency" class="button-secondary">Overlay Transparency</button>
+                <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
+            </div>
+            <div class="button-input">
+                <button @click="toggleScaling" class="button-secondary">Resize</button>
+            </div>
+            <div class="button-input">
+                <button @click="toggleRotating" class="button-secondary">Rotate</button>
+            </div> 
         </div>
         <p>Select an overlay:</p>
-        <button @click="handleUploadClick">Upload Your Own</button>
-        <div v-if="userOverlayUploads.length > 0">
+        <button @click="handleUploadClick" class="button-tertiary">Upload Your Own</button>
+        <div v-if="userOverlayUploads.length > 0" class="overlay-options">
             <img
             v-for="overlay in userOverlayUploads"
             :key="overlay.id"
@@ -63,7 +98,7 @@
             @click="selectOverlay(overlay)"
             >
         </div>
-        <div id="overlay-options">
+        <div class="overlay-options">
             <img
             v-for="overlay in overlayOptions"
             :key="overlay.id"
@@ -881,7 +916,93 @@ export default {
 
 canvas {
     margin-top: 5vh;
-    max-width: 33vw;
+    max-width: 50vw;
+    touch-action: none;
 }
+
+.edit-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.edit-buttons .button-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 15px;
+}
+
+.edit-buttons .button-input button {
+    font-size: 25px;
+}
+
+.processing-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+
+  .selected {
+    border: 2px solid blue;
+  }
+
+  .overlay-options {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .overlay-options img {
+    flex-shrink: 0;
+    margin-right: 10px;
+    max-width: 150px; /* Decrease the maximum width of each overlay option */
+    padding: 5px;
+  }
+
+  /* Add some space between each overlay option */
+  .overlay-options img:not(:last-child) {
+    margin-right: 20px;
+  }
+
+
+@media only screen and (max-width: 3329px) {
+    canvas {
+        max-width: 75vw;
+    }
+}
+
+@media only screen and (max-width: 890px) {
+    .edit-buttons .button-input {
+    padding: 5px;
+}
+}
+
+@media only screen and (max-width: 400px) {
+    canvas {
+        max-width: 90vw;
+    }
+}
+
+@media only screen and (max-width: 3329px) {
+    #upload-button {
+        max-width: 80vw;
+        font-size: 20px;
+        padding: 15px;
+    }
+}
+
+
 
 </style>

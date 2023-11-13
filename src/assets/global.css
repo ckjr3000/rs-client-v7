@@ -16,13 +16,13 @@
 }
 
 body {
-  background-color: var(--black);
+  background-color: var(--white);
   margin: 0;
   padding: 0;
 }
 
 h2, p {
-  color: var(--white);
+  color: var(--black);
 }
 
 p {
@@ -32,7 +32,7 @@ p {
 }
 
 a {
-  color: var(--pink);
+  color: var(--black);
 }
 
 .button-primary {
@@ -47,11 +47,22 @@ a {
 }
 
 .button-secondary {
-  background-color: var(--black);
+  background-color: var(--white);
   color: var(--gold);
   border: 3px solid var(--gold);
   border-radius: 50px;
   font-size: 32px;
+  padding: 15px 50px;
+  cursor: pointer;
+  margin: 15px 0px;
+}
+
+.button-tertiary {
+  background-color: var(--black);
+  color: var(--white);
+  border: 3px solid var(--white);
+  border-radius: 50px;
+  font-size: 25px;
   padding: 15px 50px;
   cursor: pointer;
   margin: 15px 0px;
