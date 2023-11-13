@@ -545,7 +545,7 @@ export default {
             return sessionId;
         },
         handleUploadClick(){
-            this.showCanvas = true;
+            
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
@@ -572,29 +572,31 @@ export default {
                 .then((data) => {
                     if (data.imageUrl) {
                         this.uploadedImageUrl = data.imageUrl;
+                        this.showCanvas = true;
+
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.crossOrigin = 'anonymous';
+                            img.onload = () => {
+                                const canvas = this.$refs.canvas;
+                                const context = canvas.getContext("2d");
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                context.drawImage(img, 0, 0);
+
+                                this.imageData = canvas.toDataURL("image/jpeg");
+                            };
+                            img.crossOrigin="anonymous";
+                            img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(resizedBlob);
                     }
                 })
                 .catch((err) => {
                     console.log(err);
                 });
 
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.crossOrigin = 'anonymous';
-                    img.onload = () => {
-                        const canvas = this.$refs.canvas;
-                        const context = canvas.getContext("2d");
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        context.drawImage(img, 0, 0);
-
-                        this.imageData = canvas.toDataURL("image/jpeg");
-                    };
-                    img.crossOrigin="anonymous";
-                    img.src = event.target.result;
-                };
-                reader.readAsDataURL(resizedBlob);
             });
         },
         handleEditSelect(e){
@@ -684,6 +686,7 @@ export default {
             });
         },
         selectOverlay(overlay){
+            console.log('overlay selected');
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
             this.overlayImage.src = overlay.src;
@@ -713,6 +716,7 @@ export default {
             })
         },
         drawCanvas() {
+            console.log('drawing canvas');
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
 
@@ -728,6 +732,7 @@ export default {
                 this.offscreenContext.drawImage(img, 0, 0);
 
                 if (this.isOverlaySelected && this.overlayImage !== null) {
+                    console.log('conditions met')
                     const width = this.overlaySize.width;
                     const height = this.overlaySize.height;
                     const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
