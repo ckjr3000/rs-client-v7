@@ -33,7 +33,7 @@
                 <button v-if="changesApplied" @click="handleSave" class="button-tertiary">Save Image</button>
             </div>
             <div class="button-input">
-                <button v-if="changesApplied && shareSupported" @click="handleShare" id="shareButton" class="button-tertiary">Share Image</button>
+                <button v-if="changesApplied" @click="handleShare" id="shareButton" class="button-tertiary">Share Image</button>
             </div>
         </div>
         <h2>Edit:</h2>
@@ -158,7 +158,6 @@ export default {
         return {
             isMobileOrTablet: this.detectMobileOrTablet(),
             sessionId: null,
-            shareSupported: false,
             uploadedImageUrl: null,
             showCanvas: false,
             editType: null,
@@ -506,14 +505,9 @@ export default {
     },
     mounted(){
         this.canvas = this.$refs.canvas;
-        console.log(this.$refs);
         this.retrieveSessionId();
         this.offscreenCanvas = document.createElement('canvas');
         this.offscreenContext = this.offscreenCanvas.getContext('2d')
-
-        if(navigator.share){
-            this.shareSupported = true;
-        }
     },
     methods: {
         detectMobileOrTablet() {
@@ -570,7 +564,9 @@ export default {
                 })
                 .then((res) => res.json())
                 .then((data) => {
+                    console.log(data)
                     if (data.imageUrl) {
+                        console.log(data.imageUrl)
                         this.uploadedImageUrl = data.imageUrl;
                         this.showCanvas = true;
 
@@ -686,7 +682,6 @@ export default {
             });
         },
         selectOverlay(overlay){
-            console.log('overlay selected');
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
             this.overlayImage.src = overlay.src;
@@ -716,7 +711,6 @@ export default {
             })
         },
         drawCanvas() {
-            console.log('drawing canvas');
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
 
@@ -727,6 +721,14 @@ export default {
             // Draw the current canvas state (uploaded image or applied changes)
             const img = new Image();
             img.crossOrigin = "Anonymous";
+
+            if (this.changesApplied === true) {
+                const dataUrl = this.appliedImageData;
+                img.src = dataUrl;
+            } else {
+                img.src = this.uploadedImageUrl;
+            }
+
             img.onload = () => {
                 console.log('img loaded')
                 this.offscreenContext.drawImage(img, 0, 0);
@@ -769,15 +771,7 @@ export default {
                 // Clear the main canvas and draw the offscreen canvas on it
                 context.clearRect(0, 0, canvas.width, canvas.height);
                 context.drawImage(this.offscreenCanvas, 0, 0);
-
-                if (this.changesApplied === true) {
-                const dataUrl = this.appliedImageData;
-                img.src = dataUrl;
-                } else {
-                    img.src = this.uploadedImageUrl;
-                }
             };
-
         },
         toggleScaling() {
             this.isScaling = !this.isScaling;
@@ -1093,7 +1087,6 @@ export default {
         },
         handleShare() {
             const canvas = this.$refs.canvas;
-            console.log('trying to share')
 
             const tempCanvas = document.createElement("canvas");
             const tempContext = tempCanvas.getContext("2d");
@@ -1114,6 +1107,7 @@ export default {
                 .catch((error) => console.log('Error sharing:', error));
             } else {
                 console.log('Web Share API not supported');
+                // implement fallback logic
             }
         },
     }
