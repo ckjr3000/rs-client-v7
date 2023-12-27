@@ -543,6 +543,7 @@ export default {
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
+            input.capture = "true"
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
@@ -564,9 +565,7 @@ export default {
                 })
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data)
                     if (data.imageUrl) {
-                        console.log(data.imageUrl)
                         this.uploadedImageUrl = data.imageUrl;
                         this.showCanvas = true;
 
@@ -730,14 +729,9 @@ export default {
             }
 
             img.onload = () => {
-                console.log('img loaded')
                 this.offscreenContext.drawImage(img, 0, 0);
 
-                console.log(this.isOverlaySelected)
-                console.log(this.overlayImage)
-
                 if (this.isOverlaySelected && this.overlayImage !== null) {
-                    console.log('conditions met')
                     const width = this.overlaySize.width;
                     const height = this.overlaySize.height;
                     const x = this.overlayPosition.x + this.overlayImage.width / 2 - width / 2;
