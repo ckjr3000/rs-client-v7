@@ -13,6 +13,23 @@
     <div v-if="!uploadedImageUrl">
       <p>Upload a selfie to get started:</p>
       <button @click="handleUploadClick" id="upload-button" class="button-secondary">Upload Image</button>
+      <div id="installation-help">
+        <h2>Installation</h2>
+        <p>
+            RebelSelves is a Progressive Web App, meaning it can be used in the browser or installed on your phone or tablet.
+        </p>
+        <h3>
+            Android
+        </h3>
+        <p>
+            On android devices, you should be prompted to add 
+        </p>
+        <h3>
+            iOS
+        </h3>
+        <p>iOS devices don't automatically send a prompt when visting a PWA.</p>
+        <p>To install RebelSelves on your device, you should select 'Share' under the URL of this page, then 'Add To Home Screen'.</p>
+      </div>
     </div>
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
@@ -1110,6 +1127,22 @@ export default {
 
 <style>
 
+#installation-help {
+    background-color: white;
+    margin: 5%;
+    padding: 1% 5%;
+    border-radius: 15px;
+}
+
+#installation-help h3 {
+    text-align: left;
+}
+
+#installation-help p {
+    text-align: left;
+    font-size: small;
+}
+
 canvas {
     margin-top: 5vh;
     max-width: 50vw;
@@ -1147,31 +1180,31 @@ canvas {
     font-weight: bold;
   }
 
-  .selected {
-    border: 2px solid blue;
-  }
+.selected {
+border: 2px solid blue;
+}
 
-  .overlay-options {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    margin-bottom: 10px;
-    justify-content: space-between;
-    flex-wrap: wrap;
-  }
+.overlay-options {
+display: flex;
+overflow-x: auto;
+white-space: nowrap;
+margin-bottom: 10px;
+justify-content: space-between;
+flex-wrap: wrap;
+}
 
-  .overlay-options img {
-    flex-shrink: 0;
-    margin-right: 10px;
-    max-width: 150px; /* Decrease the maximum width of each overlay option */
-    padding: 5px;
-  }
+.overlay-options img {
+flex-shrink: 0;
+margin-right: 10px;
+max-width: 150px; /* Decrease the maximum width of each overlay option */
+padding: 5px;
+}
 
-  /* Add some space between each overlay option */
-  .overlay-options img:not(:last-child) {
-    margin-right: 20px;
-  }
+.overlay-options img:not(:last-child) {
+margin-right: 20px;
+}
 
+/* Breakpoints */
 
 @media only screen and (max-width: 3329px) {
     canvas {
