@@ -37,59 +37,45 @@
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
         <div class="edit-buttons">
-            <div class="button-input">
-                <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="button-tertiary">Apply Changes</button>
-            </div>
-            <div class="button-input">
-                <button v-if="appliedImageData" @click="handleUndo" class="button-tertiary">Undo</button>
-            </div>
-            <div class="button-input">
-                <button v-if="redoAvailable" @click="handleRedo" class="button-tertiary">Redo</button>
-            </div>
-            <div class="button-input">
-                <button v-if="appliedImageData" @click="handleReset" class="button-tertiary">Reset Image</button>
-            </div>
-            <div class="button-input">
-                <button v-if="changesApplied" @click="handleSave" class="button-tertiary">Save Image</button>
-            </div>
-            <div class="button-input">
-                <button v-if="changesApplied" @click="handleShare" id="shareButton" class="button-tertiary">Share Image</button>
-            </div>
+                <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="edit-button-secondary">Apply Changes</button>
+                <button v-if="appliedImageData" @click="handleUndo" class="edit-button-secondary">Undo</button>
+                <button v-if="redoAvailable" @click="handleRedo" class="edit-button-secondary">Redo</button>
+                <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
+                <button v-if="changesApplied" @click="handleSave" class="edit-button-secondary">Save Image</button>
+                <button v-if="changesApplied" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
         </div>
-        <h2>Edit:</h2>
-
         <div class="edit-buttons">
             <div class="button-input">
-                <button value="blur" @click="handleEditSelect" class="button-primary">Blur</button>
+                <button value="blur" @click="handleEditSelect" class="edit-button">Blur</button>
                 <input v-if="editType === 'blur'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
-                <button value="pixelation" @click="handleEditSelect" class="button-primary">Pixelation</button>
+                <button value="pixelation" @click="handleEditSelect" class="edit-button">Pixelation</button>
                 <input v-if="editType === 'pixelation'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
-                <button value="hue" @click="handleEditSelect" class="button-primary">Hue</button>
+                <button value="hue" @click="handleEditSelect" class="edit-button">Hue</button>
                 <input v-if="editType === 'hue'" type="range" min="0" max="360" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
-                <button value="brightness" @click="handleEditSelect" class="button-primary">Brightness</button>
+                <button value="brightness" @click="handleEditSelect" class="edit-button">Brightness</button>
                 <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
-                <button value="saturation" @click="handleEditSelect" class="button-primary">Saturation</button>
+                <button value="saturation" @click="handleEditSelect" class="edit-button">Saturation</button>
                 <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
-                <button value="glitch" @click="handleGlitch" class="button-primary">Glitch!</button>
+                <button value="glitch" @click="handleGlitch" class="edit-button">Glitch!</button>
             </div>
 
             <div class="button-input">
-                <button value="overlay" @click="handleEditSelect" class="button-primary">Overlay</button>
+                <button value="overlay" @click="handleEditSelect" class="edit-button">Overlay</button>
             </div>
         </div>
     </div>
@@ -1173,6 +1159,31 @@ canvas {
     canvas {
         width: 33vw;
     }
+}
+
+.edit-buttons {
+    display: flex;
+    gap: 0.8em;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 5px;
+    margin: 15px;
+}
+
+.edit-button {
+    background-color: var(--gold);
+    color: var(--black);
+    border: none;
+    font-size: 20px;
+    padding: 10px;
+}
+
+.edit-button-secondary {
+    background-color: white;
+    color: var(--gold);
+    border: 3px solid var(--gold);
+    font-size: 17px;
+    padding: 10px;
 }
 
 </style>
