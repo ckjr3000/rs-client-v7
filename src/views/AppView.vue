@@ -1144,4 +1144,17 @@ export default {
     color: var(--gold)
 }
 
+#installation-help {
+    background-color: var(--white);
+    margin: 25px 15px;
+    border-radius: 25px;
+    padding: 5px 15px;
+    font-size: 15px;
+    text-align: left;
+}
+
+#installation-help h2 {
+    text-align: center;
+}
+
 </style>
