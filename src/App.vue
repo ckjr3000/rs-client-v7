@@ -56,6 +56,11 @@ nav {
 
 .hamburger {
   cursor: pointer;
+  transition-duration: 0.4s;
+}
+
+.hamburger:hover {
+  background-color: #ffddd8;
 }
 
 .dropdown {
