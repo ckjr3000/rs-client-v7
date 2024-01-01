@@ -1157,4 +1157,22 @@ export default {
     text-align: center;
 }
 
+canvas {
+    height: auto;
+    width: 70vw;
+    margin-top: 20px;
+}
+
+@media (min-width: 500px) {
+    canvas {
+        width: 50vw;
+    }
+}
+
+@media (min-width: 820px) {
+    canvas {
+        width: 33vw;
+    }
+}
+
 </style>
