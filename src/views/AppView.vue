@@ -208,6 +208,7 @@ export default {
             showCanvas: false,
             editType: null,
             editValue: 0,
+            overlayIsFirst: false,
             imageData: null,
             appliedImageData: null,
             currentVersionIndex: -1,
@@ -757,6 +758,7 @@ export default {
             })
         },
         selectOverlay(overlay){
+            this.overlayIsFirst = true;
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
             this.overlayImage.src = overlay.src;
@@ -797,7 +799,7 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
 
-            if (this.changesApplied === true) {
+            if (this.changesApplied === true || this.overlayIsFirst === true) {
                 const dataUrl = this.appliedImageData;
                 img.src = dataUrl;
             } else {
