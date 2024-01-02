@@ -95,7 +95,7 @@
             </div> 
         </div>
         <p>Select an overlay:</p>
-        <button @click="handleUploadClick" class="button-tertiary">Upload Your Own</button>
+        <button @click="handleUploadClick" class="edit-button" id="upload-overlay-button">Upload Your Own</button>
         <div v-if="userOverlayUploads.length > 0" class="overlay-options">
             <img
             v-for="overlay in userOverlayUploads"
@@ -1143,6 +1143,13 @@ export default {
     text-align: center;
 }
 
+@media (min-width: 600px) {
+    #installation-help {
+        width: 60vw;
+        margin: 25px auto;
+    }
+}
+
 canvas {
     height: auto;
     width: 70vw;
@@ -1182,8 +1189,28 @@ canvas {
     background-color: white;
     color: var(--gold);
     border: 3px solid var(--gold);
-    font-size: 17px;
+    font-size: 17code px;
     padding: 10px;
+}
+
+.overlay-options {
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    flex-wrap: wrap;
+}
+
+.overlay-options > * {
+    flex-shrink: 0;
+    max-width: 150px;
+    border: 1px solid rgb(92, 91, 91);
+    border-radius: 20px;
+    margin-bottom: 20px;
+    padding: 7px;
+}
+
+#upload-overlay-button {
+    margin-bottom: 20px;
 }
 
 </style>
