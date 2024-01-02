@@ -563,6 +563,9 @@ export default {
         this.offscreenCanvas = document.createElement('canvas');
         this.offscreenContext = this.offscreenCanvas.getContext('2d')
     },
+    beforeUnmount(){
+        navigator.sendBeacon(`${process.env.VUE_APP_SERVER_URL}/clean-up`)
+    },
     methods: {
         detectMobileOrTablet() {
             const screenWidth = window.innerWidth;
@@ -795,12 +798,15 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
 
-            if (this.changesApplied === true) {
-                const dataUrl = this.appliedImageData;
-                img.src = dataUrl;
-            } else {
-                img.src = this.uploadedImageUrl;
-            }
+            const dataUrl = this.appliedImageData;
+            img.src = dataUrl;
+
+            // if (this.changesApplied === true) {
+            //     const dataUrl = this.appliedImageData;
+            //     img.src = dataUrl;
+            // } else {
+            //     img.src = this.uploadedImageUrl;
+            // }
 
             img.onload = () => {
                 this.offscreenContext.drawImage(img, 0, 0);
