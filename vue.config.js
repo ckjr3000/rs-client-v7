@@ -10,8 +10,8 @@ module.exports = {
       manifestOptions: {
         icons: [
           {
-            "src": "@/assets/icons/windows11/SmallTile.scale-100.png",
-            "sizes": "71x71"
+            src: '/icons/windows11/SmallTile.scale-100.png',
+            sizes: '71x71'
           },
           {
             "src": "./assets/icons/windows11/SmallTile.scale-125.png",
