@@ -84,14 +84,14 @@
     <div v-if="editType === 'overlay'">
         <div v-if="isOverlaySelected" class="edit-buttons">
             <div class="button-input">
-                <button value="transparency" @click="handleTransparency" class="button-secondary">Overlay Transparency</button>
+                <button value="transparency" @click="handleTransparency" class="edit-button-secondary">Overlay Transparency</button>
                 <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
             </div>
             <div class="button-input">
-                <button @click="toggleScaling" class="button-secondary">Resize</button>
+                <button @click="toggleScaling" class="edit-button-secondary">Resize</button>
             </div>
             <div class="button-input">
-                <button @click="toggleRotating" class="button-secondary">Rotate</button>
+                <button @click="toggleRotating" class="edit-button-secondary">Rotate</button>
             </div> 
         </div>
         <p>Select an overlay:</p>
@@ -553,6 +553,9 @@ export default {
             isRotating: false,
             transparencySelected: false,
         }
+    },
+    created(){
+        document.title = 'RebelSelves';
     },
     mounted(){
         this.canvas = this.$refs.canvas;
@@ -1256,6 +1259,10 @@ canvas {
     border: 3px solid var(--gold);
     font-size: 17code px;
     padding: 10px;
+}
+
+.button-input > input {
+    margin: 0 15px;
 }
 
 .overlay-options {

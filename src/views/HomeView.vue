@@ -55,7 +55,11 @@
 </template>
 
 <script>
-
+  export default {
+    created(){
+        document.title = 'RebelSelves';
+    }
+  }
 </script>
 
 <style scoped>
