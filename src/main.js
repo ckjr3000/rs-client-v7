@@ -4,9 +4,9 @@ import './registerServiceWorker'
 import router from './router'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faBars, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faChevronDown, faChevronUp, faUpload } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faBars, faUpload);
+library.add(faBars, faUpload, faChevronDown, faChevronUp);
 
 createApp(App)
     .use(router)
