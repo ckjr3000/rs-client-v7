@@ -221,7 +221,7 @@ export default {
             overlayMaskOptions: [
                 {
                     id: 1,
-                    src: process.env.BASE_URL + 'assets/overlays/masks/1.png'
+                    src: process.env.VUE_APP_BASE_URL + 'assets/overlays/masks/1.png'
                 },
                 {
                     id: 2,
