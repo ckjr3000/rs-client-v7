@@ -7,6 +7,14 @@ module.exports = {
       appleMobileWebAppCapable: 'yes',
       appleMobileWebAppStatusBarStyle: 'black',
       
+      manifestOptions: {
+        icons: [
+          {
+            src: '../public/img/icons/android-chrome-72x72.png'
+          }
+        ]       
+      },
+  
       workboxPluginMode: 'GenerateSW',
       workboxOptions: {
         skipWaiting: true,
