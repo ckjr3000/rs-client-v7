@@ -10,7 +10,7 @@ module.exports = {
       manifestOptions: {
         icons: [
           {
-            src: '../public/img/icons/android-chrome-72x72.png'
+            src: 'img/icons/android-chrome-72x72.png'
           }
         ]       
       },
