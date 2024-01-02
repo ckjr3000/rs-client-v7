@@ -6,6 +6,7 @@ module.exports = {
       display: 'standalone',
       themeColor: '#DE8C01',
       msTileColor: '#FFC0B8',
+      backgroundColor: '#212121',
       
       manifestOptions: {
         icons: [
