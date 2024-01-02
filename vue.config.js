@@ -31,6 +31,9 @@ module.exports = {
             src: 'img/icons/512.png'
           },
           {
+            src: 'img/icons/1024.png',
+          },
+          {
             src: 'img/icons/maskable.png',
             purpose: 'maskable',
           },
