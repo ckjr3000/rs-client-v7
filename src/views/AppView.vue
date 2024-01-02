@@ -739,7 +739,6 @@ export default {
         },
         toggleOverlaySubmenu(e){
             const value = e.target.value;
-            console.log(e.isPropagationStopped);
 
             this.$nextTick(() => {
                 if (value === 'masks') {
@@ -798,15 +797,12 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
 
-            const dataUrl = this.appliedImageData;
-            img.src = dataUrl;
-
-            // if (this.changesApplied === true) {
-            //     const dataUrl = this.appliedImageData;
-            //     img.src = dataUrl;
-            // } else {
-            //     img.src = this.uploadedImageUrl;
-            // }
+            if (this.changesApplied === true) {
+                const dataUrl = this.appliedImageData;
+                img.src = dataUrl;
+            } else {
+                img.src = this.uploadedImageUrl;
+            }
 
             img.onload = () => {
                 this.offscreenContext.drawImage(img, 0, 0);
