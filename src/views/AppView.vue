@@ -105,8 +105,16 @@
             @touch="selectOverlay(overlay)"
             >
         </div>
-        <p>Masks:</p>
-        <div class="overlay-options">
+
+        <button 
+            value="masks"
+            class="overlay-submenu-button"
+            @click="toggleOverlaySubmenu">
+            Masks 
+            <font-awesome-icon v-if="!toggleMasks" icon="fa-solid fa-chevron-down"/>
+            <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
+        </button>
+        <div v-if="toggleMasks" class="overlay-options">
             <img
             v-for="overlay in overlayMaskOptions"
             :key="overlay.id"
@@ -114,8 +122,16 @@
             @click="selectOverlay(overlay)"
             />
         </div>
-        <p>Selfie:</p>
-        <div class="overlay-options">
+
+        <button 
+            value="selfies"
+            class="overlay-submenu-button"
+            @click="toggleOverlaySubmenu">
+            Selfies 
+            <font-awesome-icon v-if="!toggleSelfie" icon="fa-solid fa-chevron-down"/>
+            <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
+        </button>
+        <div v-if="toggleSelfie" class="overlay-options">
             <img
             v-for="overlay in overlaySelfieOptions"
             :key="overlay.id"
@@ -123,8 +139,16 @@
             @click="selectOverlay(overlay)"
             />
         </div>
-        <p>Texture:</p>
-        <div class="overlay-options">
+        
+        <button 
+            value="texture"
+            class="overlay-submenu-button"
+            @click="toggleOverlaySubmenu">
+            Texture 
+            <font-awesome-icon v-if="!toggleTexture" icon="fa-solid fa-chevron-down"/>
+            <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
+        </button>
+        <div v-if="toggleTexture" class="overlay-options">
             <img
             v-for="overlay in overlayTextureOptions"
             :key="overlay.id"
@@ -132,8 +156,16 @@
             @click="selectOverlay(overlay)"
             />
         </div>
-        <p>Stickers:</p>
-        <div class="overlay-options">
+        
+        <button 
+            value="stickers"
+            class="overlay-submenu-button"
+            @click="toggleOverlaySubmenu">
+            Stickers 
+            <font-awesome-icon v-if="!toggleStickers" icon="fa-solid fa-chevron-down"/>
+            <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
+        </button>
+        <div v-if="toggleStickers" class="overlay-options">
             <img
             v-for="overlay in overlayStickerOptions"
             :key="overlay.id"
@@ -141,8 +173,16 @@
             @click="selectOverlay(overlay)"
             />
         </div>
-        <p>Others:</p>
-        <div class="overlay-options">
+        
+        <button 
+            value="other"
+            class="overlay-submenu-button"
+            @click="toggleOverlaySubmenu">
+            Other 
+            <font-awesome-icon v-if="!toggleOther" icon="fa-solid fa-chevron-down"/>
+            <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
+        </button>
+        <div v-if="toggleOther" class="overlay-options">
             <img
             v-for="overlay in overlayOtherOptions"
             :key="overlay.id"
@@ -173,6 +213,11 @@ export default {
             currentVersionIndex: -1,
             redoAvailable: false,
             changesApplied: false,
+            toggleMasks: false,
+            toggleSelfie: false,
+            toggleStickers: false,
+            toggleTexture: false,
+            toggleOther: false,
             overlayMaskOptions: [
                 {
                     id: 1,
@@ -686,6 +731,26 @@ export default {
                 this.drawCanvas();
             });
         },
+        toggleOverlaySubmenu(e){
+            const value = e.target.value;
+            console.log(e.isPropagationStopped);
+
+            this.$nextTick(() => {
+                if (value === 'masks') {
+                    this.toggleMasks = !this.toggleMasks;
+                } else if (value === 'selfies') {
+                    this.toggleSelfie = !this.toggleSelfie;
+                } else if (value === 'texture') {
+                    this.toggleTexture = !this.toggleTexture;
+                } else if (value === 'stickers') {
+                    this.toggleStickers = !this.toggleStickers;
+                } else if (value === 'other') {
+                    this.toggleOther = !this.toggleOther;
+                } else {
+                    console.log('Error opening overlay sub menu. ', value);
+                }
+            })
+        },
         selectOverlay(overlay){
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
@@ -1198,6 +1263,7 @@ canvas {
     justify-content: center;
     gap: 1em;
     flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .overlay-options > * {
@@ -1205,12 +1271,30 @@ canvas {
     max-width: 150px;
     border: 1px solid rgb(92, 91, 91);
     border-radius: 20px;
-    margin-bottom: 20px;
     padding: 7px;
 }
 
 #upload-overlay-button {
     margin-bottom: 20px;
+}
+
+.overlay-submenu-button {
+    display: block;
+    background-color: var(--black);
+    color: var(--white);
+    border: none;
+    font-size: 18px;
+    padding: 8px;
+    width: 40vw;
+    margin: 5px auto;
+}
+
+/* 
+ensures that child elements of buttons do not prevent button click events from firing 
+https://css-tricks.com/slightly-careful-sub-elements-clickable-things/
+*/
+button > * {
+    pointer-events: none;
 }
 
 </style>
