@@ -11,11 +11,13 @@ module.exports = {
         icons: [
           {
             src: '/icons/windows11/SmallTile.scale-100.png',
-            sizes: '71x71'
+            sizes: '71x71',
+            type: 'image/png',
           },
           {
             src: './assets/icons/windows11/SmallTile.scale-125.png',
-            sizes: '89x89'
+            sizes: '89x89',
+            type: 'image/png',
           },
           {
             src: './assets/icons/windows11/SmallTile.scale-150.png',
