@@ -639,9 +639,6 @@ export default {
                                 context.drawImage(img, 0, 0);
 
                                 this.imageData = canvas.toDataURL("image/jpeg");
-                                this.$nextTick(
-                                    this.uploadedImageUrl = this.imageData
-                                )
                             };
                             img.crossOrigin="anonymous";
                             img.src = event.target.result;
@@ -1129,24 +1126,26 @@ export default {
                 context.drawImage(img, 0, 0);
             };
 
-            fetch(this.uploadedImageUrl, {
-                method: 'GET',
-            })
-                .then((response) => {
-                    if (!response.ok) {
-                        console.log('response not ok')
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                    console.log(response.arrayBuffer());
-                    return response.arrayBuffer();
-                })
-                .then((buffer) => {
-                    const blob = new Blob([buffer], { type: "image/*" });
-                    img.src = URL.createObjectURL(blob);
-                })
-                .catch((error) => {
-                    console.log("Error loading image:", error);
-                });
+            img.src = this.imageData;
+
+            // fetch(this.uploadedImageUrl, {
+            //     method: 'GET',
+            // })
+            //     .then((response) => {
+            //         if (!response.ok) {
+            //             console.log('response not ok')
+            //             throw new Error(`HTTP error! Status: ${response.status}`);
+            //         }
+            //         console.log(response.arrayBuffer());
+            //         return response.arrayBuffer();
+            //     })
+            //     .then((buffer) => {
+            //         const blob = new Blob([buffer], { type: "image/*" });
+            //         img.src = URL.createObjectURL(blob);
+            //     })
+            //     .catch((error) => {
+            //         console.log("Error loading image:", error);
+            //     });
 
             fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
                 method: "POST",
