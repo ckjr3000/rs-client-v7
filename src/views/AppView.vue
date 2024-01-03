@@ -642,6 +642,7 @@ export default {
                             };
                             img.crossOrigin="anonymous";
                             img.src = event.target.result;
+                            console.log('Initial: ', img.src);
                         };
                         reader.readAsDataURL(resizedBlob);
                     }
@@ -1131,6 +1132,7 @@ export default {
                 .then((buffer) => {
                     const blob = new Blob([buffer], { type: "image/*" });
                     img.src = URL.createObjectURL(blob);
+                    console.log('Reset: ', img.src);
                 })
                 .catch((error) => {
                 console.error("Error loading image:", error);
