@@ -608,6 +608,7 @@ export default {
             input.click();
         },
         handleUpload(e){
+            console.log('handling upload');
             const file = e.target.files[0];
             file.crossOrigin="anonymous";
 
