@@ -1117,47 +1117,39 @@ export default {
         },
 
 
-handleReset() {
-    console.log(this.uploadedImageUrl);
+        handleReset() {
+            console.log(this.uploadedImageUrl);
 
-    // Check if this.uploadedImageUrl is a valid URL
-    if (!this.isValidUrl(this.uploadedImageUrl)) {
-        console.error('Invalid URL:', this.uploadedImageUrl);
-        return;
-    }
-
-    // Perform a HEAD request to check accessibility
-    fetch(this.uploadedImageUrl, {
-        method: 'HEAD',
-    })
-    .then((response) => {
-        if (response.ok) {
-            // URL is valid and accessible, proceed with the rest of the logic
-            console.log('URL is valid and accessible');
-            
             const canvas = this.$refs.canvas;
-            const context = canvas.getContext('2d');
+            const context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Rest of your logic...
+            const img = new Image();
+            img.crossOrigin = "anonymous"; // Set the crossOrigin attribute
+            img.onload = () => {
+                context.drawImage(img, 0, 0);
+            };
 
-        } else {
-            console.error('URL is not accessible:', this.uploadedImageUrl);
-        }
-    })
-    .catch((error) => {
-        console.error('Error checking URL accessibility:', error);
-    });
-},
+            fetch(this.uploadedImageUrl, {
+                method: 'POST',
+            })
+                .then((response) => response.arrayBuffer())
+                .then((buffer) => {
+                    const blob = new Blob([buffer], { type: "image/*" });
+                    img.src = URL.createObjectURL(blob);
+                })
+                .catch((error) => {
+                    console.error("Error loading image:", error);
+                });
 
-isValidUrl(url) {
-    try {
-        new URL(url);
-        return true;
-    } catch (error) {
-        return false;
-    }
-},
+            fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
+                method: "POST",
+            })
+                .then((res) => res.json());
+
+            this.changesApplied = false;
+            this.appliedImageData = null;
+        },
         handleSave(){
             const canvas = this.$refs.canvas;
   
