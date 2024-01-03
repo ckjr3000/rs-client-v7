@@ -57,6 +57,12 @@ nav {
   transition-duration: 0.4s;
 }
 
+.button-secondary:hover {
+  background-color: #fafafa;
+  color: #e6a73c;
+  border: 5px solid #e6a73c;
+}
+
 .button-primary:hover {
   background-color:  #e6a73c;
   box-shadow: var(--black);

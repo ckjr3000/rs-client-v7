@@ -10,7 +10,7 @@
       </p>
 
       <router-link to="/app">
-        <button class="button-primary">Get the App</button>
+        <button class="button-primary">Go to App</button>
       </router-link>
     
 

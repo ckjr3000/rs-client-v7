@@ -39,7 +39,6 @@
         <div class="edit-buttons">
                 <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="edit-button-secondary">Apply Changes</button>
                 <button v-if="appliedImageData" @click="handleUndo" class="edit-button-secondary">Undo</button>
-                <button v-if="redoAvailable" @click="handleRedo" class="edit-button-secondary">Redo</button>
                 <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
                 <button v-if="changesApplied" @click="handleSave" class="edit-button-secondary">Save Image</button>
                 <button v-if="changesApplied" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
@@ -47,27 +46,27 @@
         <div class="edit-buttons">
             <div class="button-input">
                 <button value="blur" @click="handleEditSelect" class="edit-button">Blur</button>
-                <input v-if="editType === 'blur'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+                <input v-if="editType === 'blur'" type="range" min="1" max="20" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
                 <button value="pixelation" @click="handleEditSelect" class="edit-button">Pixelation</button>
-                <input v-if="editType === 'pixelation'" type="range" min="0" max="20" defaultValue="0" @change="handleValueChange">
+                <input v-if="editType === 'pixelation'" type="range" min="1" max="20" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
                 <button value="hue" @click="handleEditSelect" class="edit-button">Hue</button>
-                <input v-if="editType === 'hue'" type="range" min="0" max="360" defaultValue="0" @change="handleValueChange">
+                <input v-if="editType === 'hue'" type="range" min="1" max="360" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
                 <button value="brightness" @click="handleEditSelect" class="edit-button">Brightness</button>
-                <input v-if="editType === 'brightness'" type="range" min="0" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
+                <input v-if="editType === 'brightness'" type="range" min="1" max="5" step="0.2" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
                 <button value="saturation" @click="handleEditSelect" class="edit-button">Saturation</button>
-                <input v-if="editType === 'saturation'" type="range" min="0" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
+                <input v-if="editType === 'saturation'" type="range" min="1" max="10" step="0.5" defaultValue="0" @change="handleValueChange">
             </div>
 
             <div class="button-input">
@@ -1082,15 +1081,6 @@ export default {
                     this.getVersion(newIndex)
                 );
             }   
-        },
-        handleRedo() {
-            if(this.redoAvailable){
-                const newIndex = this.currentVersionIndex + 1;
-                this.$nextTick(() => {
-                    this.getVersion(newIndex)
-                    this.redoAvailable = false;
-                });
-            }
         },
         getVersion(newIndex){
             const canvas = this.$refs.canvas;
