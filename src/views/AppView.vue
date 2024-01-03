@@ -1116,37 +1116,48 @@ export default {
                     })
         },
         handleReset() {
-            console.log(this.uploadedImageUrl);
+    console.log(this.uploadedImageUrl);
 
-            const canvas = this.$refs.canvas;
-            const context = canvas.getContext("2d");
-            context.clearRect(0, 0, canvas.width, canvas.height);
+    const canvas = this.$refs.canvas;
+    const context = canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-            const img = new Image();
-            img.onload = () => {
-                context.drawImage(img, 0, 0);
-            };
+    const img = new Image();
+    img.onload = () => {
+        context.drawImage(img, 0, 0);
+    };
 
-            fetch(this.uploadedImageUrl, {
-                method: 'POST',
-            })
-                .then((response) => response.arrayBuffer())
-                .then((buffer) => {
-                    const blob = new Blob([buffer], { type: "image/*" });
-                    img.src = URL.createObjectURL(blob);
-                })
-                .catch((error) => {
-                    console.error("Error loading image:", error);
-                });
+    fetch(this.uploadedImageUrl, {
+        method: 'GET', // Change method to GET
+    })
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.arrayBuffer();
+        })
+        .then((buffer) => {
+            const blob = new Blob([buffer], { type: "image/*" });
+            img.src = URL.createObjectURL(blob);
+        })
+        .catch((error) => {
+            console.error("Error loading image:", error);
+        });
 
-            fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
-                method: "POST",
-            })
-                .then((res) => res.json());
+    fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
+        method: "POST",
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log("Database cleared successfully:", data);
+        })
+        .catch((error) => {
+            console.error("Error clearing database:", error);
+        });
 
-            this.changesApplied = false;
-            this.appliedImageData = null;
-        },
+    this.changesApplied = false;
+    this.appliedImageData = null;
+},
         handleSave(){
             const canvas = this.$refs.canvas;
   
