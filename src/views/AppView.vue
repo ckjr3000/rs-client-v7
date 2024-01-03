@@ -598,13 +598,13 @@ export default {
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
-            input.capture="filesystem"
             
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
                 input.addEventListener("change", this.handleUpload.bind(this));
             }
+            input.addEventListener("click", this.handleUpload);
             input.click();
         },
         handleUpload(e){
