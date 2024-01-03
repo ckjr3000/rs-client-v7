@@ -604,7 +604,7 @@ export default {
             } else {
                 input.addEventListener("change", this.handleUpload.bind(this));
             }
-            input.addEventListener("click", this.handleUpload);
+            input.addEventListener("change", this.handleUpload);
             input.click();
         },
         handleUpload(e){
