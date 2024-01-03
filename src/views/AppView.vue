@@ -86,12 +86,6 @@
                 <button value="transparency" @click="handleTransparency" class="edit-button-secondary">Overlay Transparency</button>
                 <input v-if="transparencySelected" type="range" min="0" max="10" step="0.5" @change="adjustOverlayTransparency">
             </div>
-            <div class="button-input">
-                <button @click="toggleScaling" class="edit-button-secondary">Resize</button>
-            </div>
-            <div class="button-input">
-                <button @click="toggleRotating" class="edit-button-secondary">Rotate</button>
-            </div> 
         </div>
         <p>Select an overlay:</p>
         <button @click="handleUploadClick" class="edit-button" id="upload-overlay-button">Upload Your Own</button>
@@ -597,16 +591,12 @@ export default {
         handleUploadClick(){
             const input = document.createElement("input");
             input.type = "file";
-            input.accept = "image/jpeg, image/png";
+            input.accept = "image/*,.heic,.heif";
             
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
-                try {
-                    input.addEventListener("change", this.handleUpload.bind(this));
-                } catch {
-                    alert('err');
-                }
+                input.addEventListener("change", this.handleUpload.bind(this));
             }
             input.click();
         },
@@ -766,6 +756,7 @@ export default {
             this.drawCanvas();
             this.isScaling = false;
             this.scalingStartPos = { x: 0, y: 0 };
+            this.isRotating = false;
         },
         uploadOverlay(e) {
             const file = e.target.files[0];
@@ -844,169 +835,108 @@ export default {
                 context.drawImage(this.offscreenCanvas, 0, 0);
             };
         },
-        toggleScaling() {
-            this.isScaling = !this.isScaling;
-            if (this.isScaling) {
-                this.isRotating = false;
-            }
-        },
-        toggleRotating() {
-            this.isRotating = !this.isRotating;
-            if (this.isRotating) {
-                this.isScaling = false;
-            }
-        },
         handleOverlayMouseDown(event) {
-            const canvas = this.$refs.canvas;
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+          const canvas = this.$refs.canvas;
+          const rect = canvas.getBoundingClientRect();
+          const x = event.clientX - rect.left;
+          const y = event.clientY - rect.top;
 
-            // Check for shift + click for scaling
-            if (event.shiftKey) {
-                // Start scaling
-                this.isScaling = true;
-                this.scalingStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
-                this.scalingStartPos = { x, y };
-            } else if (event.ctrlKey) {
-                // start rotating
-                this.isRotating = true;
-                this.rotationStartPos = { x, y };
-                this.rotationStartAngle = Math.atan2(y - this.overlayPosition.y, x - this.overlayPosition.x);
-            } else {
-                // Start moving
-                this.isMoving = true;
-                this.movingStartPos = { x, y };
-                this.movingStartOverlayPos = { x: this.overlayPosition.x, y: this.overlayPosition.y };
-            }
-        },
-        handleOverlayMouseMove(event) {
-            const canvas = this.$refs.canvas;
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+          // Check for shift + click for scaling
+          if (event.shiftKey) {
+            // Start scaling
+            this.isScaling = true;
+            this.scalingStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
+            this.scalingStartPos = { x, y };
+          } else {
+            // Start moving
+            this.isMoving = true;
+            this.movingStartPos = { x, y };
+            this.movingStartOverlayPos = { x: this.overlayPosition.x, y: this.overlayPosition.y };
+          }
+      },
+      handleOverlayMouseMove(event) {
+        const canvas = this.$refs.canvas;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-            if (this.isScaling && this.overlayImage) {
-                const scaleRatioX = (x - this.scalingStartPos.x) / 100;
-                const scaleRatioY = (y - this.scalingStartPos.y) / 100;
+        if (this.isScaling && this.overlayImage) {
+          const scaleRatioX = (x - this.scalingStartPos.x) / 100;
+          const scaleRatioY = (y - this.scalingStartPos.y) / 100;
 
-                if (event.shiftKey) {
-                    const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
-                    this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
-                    this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
-                } else {
-                    this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
-                    this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
-                }
+          // Scale while maintaining aspect ratio
+          if (event.shiftKey) {
+            const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
+            this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
+            this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
+          } else {
+            this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
+            this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
+          }
 
-                this.drawCanvas();
-            } else if (this.isRotating && this.overlayImage) {
-                const angle = Math.atan2(y - (this.overlayPosition.y + this.overlaySize.height / 2), x - (this.overlayPosition.x + this.overlaySize.width / 2));
-                const rotationDelta = angle - this.rotationStartAngle;
+          this.drawCanvas();
+        } else if (this.isMoving && this.overlayImage) {
+          const deltaX = x - this.movingStartPos.x;
+          const deltaY = y - this.movingStartPos.y;
 
-                // Adjust the rotation sensitivity
-                const rotationScalingFactor = 0.01;
+          this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
+          this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
 
-                // Cap the rotation speed to the maximum value
-                this.overlayRotation += rotationDelta * rotationScalingFactor;
+          this.drawCanvas();
+        }
+      },
+      handleOverlayMouseUp() {
+        this.isScaling = false;
+        this.isMoving = false;
+      },
+      handleOverlayTouchStart(e) {
+          const touch = e.touches[0];
+          if (e.touches.length === 1) {
+            // Single touch for moving the overlay
+            this.handleOverlayMouseDown(touch);
+          } else if (e.touches.length === 2) {
+            // Two touches for scaling the overlay
+            this.handlePinchStart(e);
+          }
+      },
+      handleOverlayTouchMove(e) {
+        const touch = e.touches[0];
+        if (e.touches.length === 1) {
+          // Single touch for moving the overlay
+          this.handleOverlayMouseMove(touch);
+        } else if (e.touches.length === 2) {
+          // Two touches for scaling the overlay
+          this.handlePinchMove(e);
+        }
+      },
+      handleOverlayTouchEnd(e) {
+        if (e.touches.length === 0) {
+          // No touches for ending scaling
+          this.handleOverlayMouseUp();
+        }
+      },
+      handlePinchStart(e) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        this.pinchStartDistance = this.getDistance(touch1, touch2);
+        this.pinchStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
+      },
+      handlePinchMove(e) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const pinchDistance = this.getDistance(touch1, touch2);
 
-                // Define a maximum rotation speed (experiment with different values)
-                const maxRotationSpeed = 5;
+        const scaleRatio = pinchDistance / this.pinchStartDistance;
+        this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
+        this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
 
-                // Cap the rotation speed
-                this.overlayRotation = Math.min(this.overlayRotation, maxRotationSpeed);
-
-                // Normalize the rotation to keep it within the range [0, 2π]
-                this.overlayRotation = (this.overlayRotation + 2 * Math.PI) % (2 * Math.PI);
-
-                this.drawCanvas();
-            } else if (this.isMoving && this.overlayImage) {
-                const deltaX = x - this.movingStartPos.x;
-                const deltaY = y - this.movingStartPos.y;
-
-                this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
-                this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
-
-                this.drawCanvas();
-            }
-        },
-        handleOverlayMouseUp() {
-            this.isScaling = false;
-            this.isMoving = false;
-            this.isRotating = false;
-        },
-        handleOverlayTouchStart(e) {
-            const touch = e.touches[0];
-            if (e.touches.length === 1) {
-                // Single touch for moving the overlay
-                this.handleOverlayMouseDown(touch);
-            } else if (e.touches.length === 2) {
-                // Two touches for scaling or rotating the overlay
-                this.handlePinchStart(e);
-            }
-        },
-        handleOverlayTouchMove(e) {
-            const touch = e.touches[0];
-            if (e.touches.length === 1) {
-                // Single touch for moving the overlay
-                this.handleOverlayMouseMove(touch);
-
-                // If scaling or rotating is active, turn them off
-                if (this.isScaling || this.isRotating) {
-                    this.isScaling = false;
-                    this.isRotating = false;
-                }
-            } else if (e.touches.length === 2) {
-                // Two touches for scaling the overlay
-                this.handlePinchMove(e);
-            }
-        },
-        handleOverlayTouchEnd(e) {
-            if (e.touches.length === 0) {
-                // No touches for ending scaling
-                this.handleOverlayMouseUp();
-
-                // If scaling or rotating is active, turn them off
-                if (this.isScaling || this.isRotating) {
-                    this.isScaling = false;
-                    this.isRotating = false;
-                }
-            }
-        },
-        handlePinchStart(e) {
-            const touch1 = e.touches[0];
-            const touch2 = e.touches[1];
-            this.pinchStartDistance = this.getDistance(touch1, touch2);
-            this.pinchStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
-        },
-        handlePinchMove(e) {
-            const touch1 = e.touches[0];
-            const touch2 = e.touches[1];
-            const pinchDistance = this.getDistance(touch1, touch2);
-
-            const scaleRatio = pinchDistance / this.pinchStartDistance;
-
-            if (this.isScaling) {
-                // Scaling is active
-                this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
-                this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
-                this.drawCanvas();
-            } else if (this.isRotating) {
-                // Rotating is active (you can add your rotation logic here)
-                const angle = Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX);
-                const rotationDelta = angle - this.rotationStartAngle;
-
-                // Add your rotation logic here
-
-                // Draw canvas
-                this.drawCanvas();
-            }
-        },
-        getDistance(point1, point2) {
-            const dx = point1.clientX - point2.clientX;
-            const dy = point1.clientY - point2.clientY;
-            return Math.sqrt(dx * dx + dy * dy);
-        },
+        this.drawCanvas();
+      },
+      getDistance(point1, point2) {
+        const dx = point1.clientX - point2.clientX;
+        const dy = point1.clientY - point2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      },
         clearCanvas() {
             const canvas = this.$refs.canvas;
             this.context.clearRect(0, 0, canvas.width, canvas.height);
