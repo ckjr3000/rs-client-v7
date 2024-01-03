@@ -1128,25 +1128,6 @@ export default {
 
             img.src = this.imageData;
 
-            // fetch(this.uploadedImageUrl, {
-            //     method: 'GET',
-            // })
-            //     .then((response) => {
-            //         if (!response.ok) {
-            //             console.log('response not ok')
-            //             throw new Error(`HTTP error! Status: ${response.status}`);
-            //         }
-            //         console.log(response.arrayBuffer());
-            //         return response.arrayBuffer();
-            //     })
-            //     .then((buffer) => {
-            //         const blob = new Blob([buffer], { type: "image/*" });
-            //         img.src = URL.createObjectURL(blob);
-            //     })
-            //     .catch((error) => {
-            //         console.log("Error loading image:", error);
-            //     });
-
             fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
                 method: "POST",
             })
