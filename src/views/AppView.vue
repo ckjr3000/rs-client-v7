@@ -1128,7 +1128,9 @@ export default {
                 context.drawImage(img, 0, 0);
             };
 
-            fetch(this.uploadedImageUrl)
+            fetch(this.uploadedImageUrl, {
+                method: 'POST',
+            })
                 .then((response) => response.arrayBuffer())
                 .then((buffer) => {
                     const blob = new Blob([buffer], { type: "image/*" });
