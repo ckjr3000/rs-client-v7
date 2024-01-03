@@ -1115,6 +1115,8 @@ export default {
                     })
         },
         handleReset(){
+            console.log(this.uploadedImageUrl);
+
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
@@ -1127,8 +1129,8 @@ export default {
             fetch(this.uploadedImageUrl)
                 .then((response) => response.arrayBuffer())
                 .then((buffer) => {
-                const blob = new Blob([buffer], { type: "image/*" });
-                img.src = URL.createObjectURL(blob);
+                    const blob = new Blob([buffer], { type: "image/*" });
+                    img.src = URL.createObjectURL(blob);
                 })
                 .catch((error) => {
                 console.error("Error loading image:", error);
