@@ -45,7 +45,7 @@
                 <button v-if="changesApplied >= 2" @click="handleUndo" class="edit-button-secondary">Undo</button>
                 <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
                 <button v-if="changesApplied > 0" @click="handleSave" class="edit-button-secondary">Save Image</button>
-                <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
+                <!-- <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button> -->
         </div>
         <div class="edit-buttons">
             <div class="button-input">
