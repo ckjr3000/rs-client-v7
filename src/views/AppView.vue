@@ -604,11 +604,14 @@ export default {
             } else {
                 input.addEventListener("change", this.handleUpload.bind(this));
             }
-            input.addEventListener("change", this.handleUpload);
-            input.click();
+            
+            try {
+                input.click();
+            } catch {
+                alert('failed to click');
+            }
         },
         handleUpload(e){
-            console.log('handling upload');
             const file = e.target.files[0];
             file.crossOrigin="anonymous";
 
@@ -646,7 +649,6 @@ export default {
                     }
                 })
                 .catch((err) => {
-                    alert('Something went wrong');
                     console.log(err);
                 });
 
