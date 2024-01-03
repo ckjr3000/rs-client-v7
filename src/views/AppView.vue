@@ -597,7 +597,7 @@ export default {
         handleUploadClick(){
             const input = document.createElement("input");
             input.type = "file";
-            input.accept = "*";
+            input.accept = "image/jpeg, image/png";
             
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
