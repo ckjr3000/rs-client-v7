@@ -28,13 +28,14 @@
                 Android
             </h3>
             <p>
-                On android devices, you should be prompted to add 
+                On android devices, open the menu in the top right corner of your broswer and select 'Install app'. 
             </p>
             <h3>
                 iOS
             </h3>
-            <p>iOS devices don't automatically send a prompt when visting a PWA.</p>
-            <p>To install RebelSelves on your device, you should select 'Share' under the URL of this page, then 'Add To Home Screen'.</p>
+            <p>
+                On an iOS device, tap the share button either at the bottom of the page, or next to the url (depends on the browser you are using), and select 'Add to home screen'.
+            </p>
         </div>
     </div>
     <!-- edit buttons -->
@@ -1080,7 +1081,7 @@ export default {
 
             const link = document.createElement("a");
             link.href = tempCanvas.toDataURL("image/jpg");
-            link.download = "rs_image.jpg";
+            link.download = "rs_image";
             link.click();
         },
         handleShare() {
