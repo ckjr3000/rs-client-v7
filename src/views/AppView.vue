@@ -1,4 +1,7 @@
 <template>
+    <div v-if="isLoading" class="processing-overlay">
+      <p>Loading...</p>
+    </div>  
     <canvas 
         v-if="showCanvas" 
         ref="canvas"
@@ -38,10 +41,10 @@
     <div v-if="uploadedImageUrl">
         <div class="edit-buttons">
                 <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="edit-button-secondary">Apply Changes</button>
-                <button v-if="appliedImageData" @click="handleUndo" class="edit-button-secondary">Undo</button>
+                <button v-if="changesApplied >= 2" @click="handleUndo" class="edit-button-secondary">Undo</button>
                 <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
-                <button v-if="changesApplied" @click="handleSave" class="edit-button-secondary">Save Image</button>
-                <button v-if="changesApplied" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
+                <button v-if="changesApplied > 0" @click="handleSave" class="edit-button-secondary">Save Image</button>
+                <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
         </div>
         <div class="edit-buttons">
             <div class="button-input">
@@ -199,13 +202,14 @@ export default {
             sessionId: null,
             uploadedImageUrl: null,
             showCanvas: false,
+            isLoading: false,
             editType: null,
             editValue: 0,
             imageData: null,
             appliedImageData: null,
             currentVersionIndex: -1,
             redoAvailable: false,
-            changesApplied: false,
+            changesApplied: 0,
             toggleMasks: false,
             toggleSelfie: false,
             toggleStickers: false,
@@ -603,6 +607,7 @@ export default {
         handleUpload(e){
             const file = e.target.files[0];
             file.crossOrigin="anonymous";
+            this.isLoading = true;
 
             resizeImage(file, 1080, 1080, (resizedBlob) => {
                 const formData = new FormData();
@@ -633,6 +638,7 @@ export default {
                             };
                             img.crossOrigin="anonymous";
                             img.src = event.target.result;
+                            this.isLoading = false;
                         };
                         reader.readAsDataURL(resizedBlob);
                     }
@@ -650,6 +656,7 @@ export default {
         handleValueChange(e){
             const editValue = e.target.value;
             this.editValue = editValue;
+            this.isLoading = true;
 
             this.$nextTick(() => {
                 this.updateCanvas();
@@ -695,6 +702,7 @@ export default {
                     ctx.drawImage(img, 0, 0);
                 };
                 img.src = `data:image/jpeg;base64,${data.processedImage}`;
+                this.isLoading = false;
             })
             .catch(error => {
                 console.error('Error sending data to the server:', error);
@@ -789,7 +797,7 @@ export default {
             const img = new Image();
             img.crossOrigin = "Anonymous";
 
-            if (this.changesApplied === true) {
+            if (this.changesApplied > 0) {
                 const dataUrl = this.appliedImageData;
                 img.src = dataUrl;
             } else {
@@ -853,90 +861,90 @@ export default {
             this.movingStartPos = { x, y };
             this.movingStartOverlayPos = { x: this.overlayPosition.x, y: this.overlayPosition.y };
           }
-      },
-      handleOverlayMouseMove(event) {
-        const canvas = this.$refs.canvas;
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        },
+        handleOverlayMouseMove(event) {
+            const canvas = this.$refs.canvas;
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
 
-        if (this.isScaling && this.overlayImage) {
-          const scaleRatioX = (x - this.scalingStartPos.x) / 100;
-          const scaleRatioY = (y - this.scalingStartPos.y) / 100;
+            if (this.isScaling && this.overlayImage) {
+            const scaleRatioX = (x - this.scalingStartPos.x) / 100;
+            const scaleRatioY = (y - this.scalingStartPos.y) / 100;
 
-          // Scale while maintaining aspect ratio
-          if (event.shiftKey) {
-            const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
-            this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
-            this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
-          } else {
-            this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
-            this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
-          }
+            // Scale while maintaining aspect ratio
+            if (event.shiftKey) {
+                const scaleRatio = Math.max(scaleRatioX, scaleRatioY);
+                this.overlaySize.width = this.scalingStartSize.width + scaleRatio * this.overlayImage.width;
+                this.overlaySize.height = this.scalingStartSize.height + scaleRatio * this.overlayImage.height;
+            } else {
+                this.overlaySize.width = this.scalingStartSize.width + scaleRatioX * this.overlayImage.width;
+                this.overlaySize.height = this.scalingStartSize.height + scaleRatioY * this.overlayImage.height;
+            }
 
-          this.drawCanvas();
-        } else if (this.isMoving && this.overlayImage) {
-          const deltaX = x - this.movingStartPos.x;
-          const deltaY = y - this.movingStartPos.y;
+            this.drawCanvas();
+            } else if (this.isMoving && this.overlayImage) {
+            const deltaX = x - this.movingStartPos.x;
+            const deltaY = y - this.movingStartPos.y;
 
-          this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
-          this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
+            this.overlayPosition.x = this.movingStartOverlayPos.x + deltaX;
+            this.overlayPosition.y = this.movingStartOverlayPos.y + deltaY;
 
-          this.drawCanvas();
-        }
-      },
-      handleOverlayMouseUp() {
-        this.isScaling = false;
-        this.isMoving = false;
-      },
-      handleOverlayTouchStart(e) {
-          const touch = e.touches[0];
-          if (e.touches.length === 1) {
+            this.drawCanvas();
+            }
+        },
+        handleOverlayMouseUp() {
+            this.isScaling = false;
+            this.isMoving = false;
+        },
+        handleOverlayTouchStart(e) {
+            const touch = e.touches[0];
+            if (e.touches.length === 1) {
+                // Single touch for moving the overlay
+                this.handleOverlayMouseDown(touch);
+            } else if (e.touches.length === 2) {
+                // Two touches for scaling the overlay
+                this.handlePinchStart(e);
+            }
+        },
+        handleOverlayTouchMove(e) {
+            const touch = e.touches[0];
+            if (e.touches.length === 1) {
             // Single touch for moving the overlay
-            this.handleOverlayMouseDown(touch);
-          } else if (e.touches.length === 2) {
+            this.handleOverlayMouseMove(touch);
+            } else if (e.touches.length === 2) {
             // Two touches for scaling the overlay
-            this.handlePinchStart(e);
-          }
-      },
-      handleOverlayTouchMove(e) {
-        const touch = e.touches[0];
-        if (e.touches.length === 1) {
-          // Single touch for moving the overlay
-          this.handleOverlayMouseMove(touch);
-        } else if (e.touches.length === 2) {
-          // Two touches for scaling the overlay
-          this.handlePinchMove(e);
-        }
-      },
-      handleOverlayTouchEnd(e) {
-        if (e.touches.length === 0) {
-          // No touches for ending scaling
-          this.handleOverlayMouseUp();
-        }
-      },
-      handlePinchStart(e) {
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        this.pinchStartDistance = this.getDistance(touch1, touch2);
-        this.pinchStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
-      },
-      handlePinchMove(e) {
-        const touch1 = e.touches[0];
-        const touch2 = e.touches[1];
-        const pinchDistance = this.getDistance(touch1, touch2);
+            this.handlePinchMove(e);
+            }
+        },
+        handleOverlayTouchEnd(e) {
+            if (e.touches.length === 0) {
+            // No touches for ending scaling
+            this.handleOverlayMouseUp();
+            }
+        },
+        handlePinchStart(e) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            this.pinchStartDistance = this.getDistance(touch1, touch2);
+            this.pinchStartSize = { width: this.overlaySize.width, height: this.overlaySize.height };
+        },
+        handlePinchMove(e) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const pinchDistance = this.getDistance(touch1, touch2);
 
-        const scaleRatio = pinchDistance / this.pinchStartDistance;
-        this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
-        this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
+            const scaleRatio = pinchDistance / this.pinchStartDistance;
+            this.overlaySize.width = this.pinchStartSize.width * scaleRatio;
+            this.overlaySize.height = this.pinchStartSize.height * scaleRatio;
 
-        this.drawCanvas();
-      },
-      getDistance(point1, point2) {
-        const dx = point1.clientX - point2.clientX;
-        const dy = point1.clientY - point2.clientY;
-        return Math.sqrt(dx * dx + dy * dy);
-      },
+            this.drawCanvas();
+        },
+        getDistance(point1, point2) {
+            const dx = point1.clientX - point2.clientX;
+            const dy = point1.clientY - point2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        },
         clearCanvas() {
             const canvas = this.$refs.canvas;
             this.context.clearRect(0, 0, canvas.width, canvas.height);
@@ -982,7 +990,7 @@ export default {
             this.overlayPosition = { x: 0, y: 0 };
             this.overlaySize = { width: 500, height: 500 };
 
-            this.changesApplied = true;
+            this.changesApplied++;
         },
         saveCanvasVersion(canvasData, editType, editValue, sessionId) {
             fetch(`${process.env.VUE_APP_SERVER_URL}/save-version`, {
@@ -1007,7 +1015,7 @@ export default {
             });
         },
         handleUndo() {
-            if (this.currentVersionIndex > 0) {
+            if (this.currentVersionIndex > 0 || this.changesApplied >= 2) {
                 const newIndex = this.currentVersionIndex +- 1;
                 this.redoAvailable = true;
                 this.$nextTick(
@@ -1057,7 +1065,7 @@ export default {
                     console.error("Error clearing database:", error);
                 });
 
-            this.changesApplied = false;
+            this.changesApplied = 0;
             this.appliedImageData = null;
         },
         handleSave(){
@@ -1218,6 +1226,17 @@ canvas {
     width: 40vw;
     margin: 5px auto;
 }
+
+.processing-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
 
 /* 
 ensures that child elements of buttons do not prevent button click events from firing 
