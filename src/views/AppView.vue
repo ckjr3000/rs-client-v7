@@ -612,6 +612,7 @@ export default {
             }
         },
         handleUpload(e){
+            alert('attempting upload');
             const file = e.target.files[0];
             file.crossOrigin="anonymous";
 
