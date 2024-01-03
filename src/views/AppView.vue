@@ -1135,6 +1135,7 @@ export default {
                         console.log('response not ok')
                         throw new Error(`HTTP error! Status: ${response.status}`);
                     }
+                    console.log(response.arrayBuffer());
                     return response.arrayBuffer();
                 })
                 .then((buffer) => {
