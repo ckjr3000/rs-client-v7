@@ -624,7 +624,7 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.imageUrl) {
-                        // this.uploadedImageUrl = data.imageUrl;
+                        this.uploadedImageUrl = data.imageUrl;
                         this.showCanvas = true;
 
                         const reader = new FileReader();
