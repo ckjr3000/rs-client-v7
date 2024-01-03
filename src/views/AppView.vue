@@ -603,10 +603,9 @@ export default {
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
                 input.addEventListener("change", this.handleUpload.bind(this));
+                input.addEventListener("submit", alert('registered submit') );
             }
-            
             input.click();
-            input.submit();
         },
         handleUpload(e){
             alert('attempting upload');
