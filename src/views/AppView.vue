@@ -594,23 +594,22 @@ export default {
 
             return sessionId;
         },
-        handleUploadClick(){
-            const input = document.createElement("input");
-            input.type = "file";
-            input.accept = "image/*,.heic,.heif";
-            input.capture = "gallery";
-            
-            if(this.editType === 'overlay'){
-                input.addEventListener("change", this.uploadOverlay.bind(this));
-            } else {
-                try {
-                    input.addEventListener("change", this.handleUpload.bind(this));
-                } catch {
-                    alert('err');
-                }
-            }
-            input.click();
-        },
+        handleUploadClick() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*,.heic,.heif";
+    input.addEventListener("change", this.handleUpload.bind(this));
+
+    const cameraInput = document.createElement("input");
+    cameraInput.type = "file";
+    cameraInput.accept = "image/*,.heic,.heif";
+    cameraInput.capture = "environment"; // or "user" for front-facing camera
+    cameraInput.addEventListener("change", this.handleCameraUpload.bind(this));
+
+    const fileInput = this.editType === 'overlay' ? cameraInput : input;
+
+    fileInput.click();
+},
         handleUpload(e){
             alert('attempting upload');
             const file = e.target.files[0];
