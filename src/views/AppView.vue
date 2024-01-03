@@ -604,8 +604,8 @@ export default {
             } else {
                 try {
                     input.addEventListener("change", this.handleUpload.bind(this));
-                } catch(err){
-                    alert(err);
+                } catch {
+                    alert('err');
                 }
             }
             input.click();
