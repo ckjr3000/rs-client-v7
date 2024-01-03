@@ -597,8 +597,7 @@ export default {
         handleUploadClick(){
             const input = document.createElement("input");
             input.type = "file";
-            input.accept = "image/*,.heic,.heif";
-            input.capture = "filesystem";
+            input.accept = "*";
             
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
@@ -612,7 +611,6 @@ export default {
             input.click();
         },
         handleUpload(e){
-            alert('attempting upload');
             const file = e.target.files[0];
             file.crossOrigin="anonymous";
 
