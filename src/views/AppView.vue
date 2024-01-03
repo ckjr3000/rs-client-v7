@@ -603,7 +603,7 @@ export default {
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
                 input.addEventListener("change", this.handleUpload.bind(this));
-                input.addEventListener("submit", alert('registered submit') );
+                input.addEventListener("change", alert('registered change') );
             }
             input.click();
         },
