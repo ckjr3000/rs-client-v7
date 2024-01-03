@@ -605,11 +605,8 @@ export default {
                 input.addEventListener("change", this.handleUpload.bind(this));
             }
             
-            try {
-                input.click();
-            } catch {
-                alert('failed to click');
-            }
+            // input.click();
+            input.submit();
         },
         handleUpload(e){
             alert('attempting upload');
