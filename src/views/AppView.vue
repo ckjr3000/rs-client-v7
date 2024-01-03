@@ -598,6 +598,7 @@ export default {
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
+            input.capture = "camera";
             
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
