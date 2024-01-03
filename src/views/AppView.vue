@@ -1115,8 +1115,6 @@ export default {
                         console.error('Error fetching previous version:', error);
                     })
         },
-
-
         handleReset() {
             console.log(this.uploadedImageUrl);
 
@@ -1125,7 +1123,6 @@ export default {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             const img = new Image();
-            img.crossOrigin = "anonymous"; // Set the crossOrigin attribute
             img.onload = () => {
                 context.drawImage(img, 0, 0);
             };
