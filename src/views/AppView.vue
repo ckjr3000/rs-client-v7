@@ -638,8 +638,10 @@ export default {
                                 canvas.height = img.height;
                                 context.drawImage(img, 0, 0);
 
-                                this.uploadedImageUrl = canvas.toDataURL("image/jpeg");
                                 this.imageData = canvas.toDataURL("image/jpeg");
+                                this.$nextTick(
+                                    this.uploadedImageUrl = this.imageData
+                                )
                             };
                             img.crossOrigin="anonymous";
                             img.src = event.target.result;
