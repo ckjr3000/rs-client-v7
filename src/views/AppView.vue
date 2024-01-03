@@ -595,11 +595,10 @@ export default {
             return sessionId;
         },
         handleUploadClick(){
-            
             const input = document.createElement("input");
             input.type = "file";
             input.accept = "image/*,.heic,.heif";
-            // input.capture = "true"
+            input.capture = "false"
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
@@ -1211,6 +1210,7 @@ canvas {
     height: auto;
     width: 70vw;
     margin-top: 20px;
+    touch-action: none;
 }
 
 @media (min-width: 500px) {
