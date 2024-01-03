@@ -602,8 +602,11 @@ export default {
             if(this.editType === 'overlay'){
                 input.addEventListener("change", this.uploadOverlay.bind(this));
             } else {
-                input.addEventListener("change", this.handleUpload.bind(this));
-                input.addEventListener("change", alert('registered change') );
+                try {
+                    input.addEventListener("change", this.handleUpload.bind(this));
+                } catch(err){
+                    alert(err);
+                }
             }
             input.click();
         },
