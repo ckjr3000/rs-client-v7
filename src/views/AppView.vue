@@ -624,7 +624,7 @@ export default {
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.imageUrl) {
-                        this.uploadedImageUrl = data.imageUrl;
+                        // this.uploadedImageUrl = data.imageUrl;
                         this.showCanvas = true;
 
                         const reader = new FileReader();
@@ -638,11 +638,11 @@ export default {
                                 canvas.height = img.height;
                                 context.drawImage(img, 0, 0);
 
+                                this.uploadedImageUrl = canvas.toDataURL("image/jpeg");
                                 this.imageData = canvas.toDataURL("image/jpeg");
                             };
                             img.crossOrigin="anonymous";
                             img.src = event.target.result;
-                            console.log('Initial: ', img.src);
                         };
                         reader.readAsDataURL(resizedBlob);
                     }
