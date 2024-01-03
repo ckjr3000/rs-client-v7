@@ -208,7 +208,6 @@ export default {
             showCanvas: false,
             editType: null,
             editValue: 0,
-            overlayIsFirst: false,
             imageData: null,
             appliedImageData: null,
             currentVersionIndex: -1,
@@ -758,7 +757,6 @@ export default {
             })
         },
         selectOverlay(overlay){
-            this.overlayIsFirst = true;
             this.overlayImageUrl = overlay.src;
             this.overlayImage = new Image();
             this.overlayImage.src = overlay.src;
@@ -795,15 +793,14 @@ export default {
             this.offscreenCanvas.height = canvas.height;
             this.offscreenContext.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw the current canvas state (uploaded image or applied changes)
             const img = new Image();
             img.crossOrigin = "Anonymous";
 
-            if (this.changesApplied === true || this.overlayIsFirst === true) {
+            if (this.changesApplied === true) {
                 const dataUrl = this.appliedImageData;
                 img.src = dataUrl;
             } else {
-                img.src = this.uploadedImageUrl;
+                img.src = this.imageData;
             }
 
             img.onload = () => {
@@ -1115,8 +1112,6 @@ export default {
                     })
         },
         handleReset() {
-            console.log(this.uploadedImageUrl);
-
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
