@@ -1115,34 +1115,34 @@ export default {
                         console.error('Error fetching previous version:', error);
                     })
         },
-        handleReset(){
+        handleReset() {
             console.log(this.uploadedImageUrl);
 
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
             context.clearRect(0, 0, canvas.width, canvas.height);
-  
+
             const img = new Image();
+            img.crossOrigin = "anonymous"; // Set the crossOrigin attribute
             img.onload = () => {
                 context.drawImage(img, 0, 0);
             };
-    
+
             fetch(this.uploadedImageUrl)
                 .then((response) => response.arrayBuffer())
                 .then((buffer) => {
                     const blob = new Blob([buffer], { type: "image/*" });
                     img.src = URL.createObjectURL(blob);
-                    console.log('Reset: ', img.src);
                 })
                 .catch((error) => {
-                console.error("Error loading image:", error);
-            });
+                    console.error("Error loading image:", error);
+                });
 
             fetch(`${process.env.VUE_APP_SERVER_URL}/clear-db`, {
-                    method: "POST",
-                })
-                .then((res) => res.json())
-            
+                method: "POST",
+            })
+                .then((res) => res.json());
+
             this.changesApplied = false;
             this.appliedImageData = null;
         },
