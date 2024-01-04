@@ -32,7 +32,7 @@ const routes = [
   //   path: '/reportbug',
   //   name: 'reportbug',
   //   component: () => import('../views/ReportBugView.vue')
-  // },
+  //},
   // {
   //   path: '/privacypolicy',
   //   name: 'privacypolicy',

@@ -1,7 +1,7 @@
 <template>
     <div v-if="isLoading" class="processing-overlay">
       <p>Loading...</p>
-    </div>  
+    </div>
     <canvas 
         v-if="showCanvas" 
         ref="canvas"
@@ -45,7 +45,7 @@
                 <button v-if="changesApplied >= 2" @click="handleUndo" class="edit-button-secondary">Undo</button>
                 <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
                 <button v-if="changesApplied > 0" @click="handleSave" class="edit-button-secondary">Save Image</button>
-                <!-- <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button> -->
+                <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
         </div>
         <div class="edit-buttons">
             <div class="button-input">
@@ -1099,8 +1099,8 @@ export default {
             // Use the Web Share API to share the image
             if (navigator.share) {
                 navigator.share({
-                title: 'My Edited Image',
-                files: [new File([this.dataURLtoBlob(imageDataURL)], 'rs_image.jpg')],
+                    title: 'My Edited Image',
+                    files: [new File([this.dataURLtoBlob(imageDataURL)], 'rs_image.jpg')],
                 })
                 .then(() => console.log('Successful share'))
                 .catch((error) => console.log('Error sharing:', error));

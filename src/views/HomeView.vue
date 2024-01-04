@@ -5,8 +5,8 @@
       </p>
 
       <p>
-        It was created by Charlotte Roe, an artist and developer based in Huddersfield, and Dr Dawn 
-        Woolley, an artist and research fellow at Leeds Arts University.
+        It was created by <a href="https://charlotteroe.space/" target="_blank" rel="noopener noreferrer">Charlotte Roe</a>, an artist and developer based in Huddersfield, and <a href="https://www.dawnwoolley.com/" target="_blank" rel="noopener noferrer">Dr Dawn 
+        Woolley</a>, an artist and research fellow at Leeds Arts University.
       </p>
 
       <router-link to="/app">
@@ -16,7 +16,7 @@
 
       <p>
         Dr Woolley researches gender and beauty ideals on social networking sites and in selfies. 
-        The app was developed in response to the conclusions of her book <a href="#">Consuming the Body: Capitalism, 
+        The app was developed in response to the conclusions of her book <a href="https://www.bloomsbury.com/uk/consuming-the-body-9781350225299/" target="_blank" rel="noopener noreferrer">Consuming the Body: Capitalism, 
         social media and commodification</a> (Bloomsbury, 2023). The book examines how advertising and 
         selfies impact on bodies, health, and gender norms, and the conclusion offers some creative ways 
         in which selfies might disrupt gender norms and beauty ideals. The creative ways include:
