@@ -13,31 +13,21 @@ const routes = [
     name: 'app',
     component: () => import('../views/AppView.vue')
   },
-  //{
-  //   path: '/demos',
-  //   name: 'demos',
-  //   component: () => import('../views/DemosView.vue')
-  // },
   // {
   //   path: '/gallery',
   //   name: 'gallery',
   //   component: () => import('../views/GalleryView.vue')
   // },
-  // {
-  //   path: '/contact',
-  //   name: 'contact',
-  //   component: () => import('../views/ContactView.vue')
-  // },
-  // {
-  //   path: '/reportbug',
-  //   name: 'reportbug',
-  //   component: () => import('../views/ReportBugView.vue')
-  //},
-  // {
-  //   path: '/privacypolicy',
-  //   name: 'privacypolicy',
-  //   component: () => import('../views/PrivacyPolicyView.vue')
-  // }
+  {
+    path: '/reportbug',
+    name: 'reportbug',
+    component: () => import('../views/ReportBugView.vue')
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: () => import('../views/AboutView.vue')
+  },
 ]
 
 const router = createRouter({

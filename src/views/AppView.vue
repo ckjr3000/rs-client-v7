@@ -207,15 +207,17 @@
             />
         </div>
     </div>
-
+    <Footer />
 </template>
 
 <script>
 import { resizeImage } from '../assets/js/resize.js'
 import { glitchImage } from '../assets/js/glitch'
+import Footer from '../components/Footer.vue'
 
 
 export default {
+    components: { Footer },
     data(){
         return {
             isMobileOrTablet: this.detectMobileOrTablet(),
