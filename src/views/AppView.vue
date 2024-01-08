@@ -13,6 +13,15 @@
         @touchend="handleOverlayTouchEnd"
         >
     </canvas>
+    <div class="web-share-fallback">
+        <div class="share">
+            <h2>Share image</h2>
+            <button>social link</button>
+            <button>social link</button>
+            <button>social link</button>
+            <button id="close-share-modal">Close</button>
+        </div>
+    </div>
     <div v-if="!uploadedImageUrl">
         <div id="upload-card">
             <p>Upload a selfie to get started.</p>
@@ -1096,18 +1105,16 @@ export default {
             // Convert the temporary canvas to a data URL (base64-encoded image)
             const imageDataURL = tempCanvas.toDataURL("image/jpeg");
 
-            // Use the Web Share API to share the image
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Edited Image',
-                    files: [new File([this.dataURLtoBlob(imageDataURL)], 'rs_image.jpg')],
-                })
-                .then(() => console.log('Successful share'))
-                .catch((error) => console.log('Error sharing:', error));
-            } else {
-                console.log('Web Share API not supported');
-                // implement fallback logic
-            }
+            const shareOverlay = document.getElementsByClassName('web-share-fallback');
+            const shareModal = document.getElementsByClassName('share');
+            shareOverlay[0].classList.add('show-share');
+            shareModal[0].classList.add('show-share');
+
+            const shareButton = document.getElementById('close-share-modal');
+            shareButton.addEventListener('click', () => {
+                shareOverlay[0].classList.remove('show-share');
+                shareModal[0].classList.remove('show-share');
+            })
         },
     }
 }
@@ -1239,11 +1246,54 @@ canvas {
     font-weight: bold;
   }
 
+.web-share-fallback {
+    opacity: 1;
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,.5);
+}
+
+.web-share-fallback, .share {
+    display: none;
+}
+
+.show-share {
+    display: block;
+}
+
+.share {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30%;
+    margin: auto;
+    width: 50%;
+    z-index: 1;
+    padding: 1em;
+    background: white;
+}
+
+.share h2 {
+    margin: 0;
+}
+
+.share button {
+    border: none;
+    padding: .8em 1.2em;
+    width: 32%;
+    cursor: pointer;
+    margin: 3em 0.2em 0.2em 0.2em;
+}
+
 /* 
 ensures that child elements of buttons do not prevent button click events from firing 
 https://css-tricks.com/slightly-careful-sub-elements-clickable-things/
 */
-button > * {
+.overlay-submenu-button > * {
     pointer-events: none;
 }
 
