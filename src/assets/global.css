@@ -23,6 +23,8 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 nav {
@@ -96,6 +98,7 @@ nav {
       flex-direction: row;
       padding: 15px;
       gap: 1em;
+      width: 100%;
   }
 
   .footer img {
