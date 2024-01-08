@@ -52,10 +52,14 @@
         They could also blend the self with different objects, places, and people, to give a complex impression of life in a moment in time.
       </p>
   </div>
+  <Footer />
 </template>
 
 <script>
+import Footer from '../components/Footer.vue';
+
   export default {
+    components: { Footer },
     created(){
         document.title = 'RebelSelves';
     }
@@ -63,24 +67,15 @@
 </script>
 
 <style scoped>
-  .home {
-    padding: 10px 20vw 10px 20vw;
-  }
 
-  @media only screen and (max-width: 1050px) {
-      .home {
-        padding: 10px 10vw 10px 10vw;
-      }
-  }
+.home p {
+  margin: 20px 25vw;
+}
 
-  @media only screen and (max-width: 357px) {
-      .home {
-        padding: 15px;
-      }
-
-      p {
-        font-size: 18px;
-      }
+@media (max-width: 1100px) {
+  .home p {
+    margin: 20px 10vw;
   }
+}
 
 </style>

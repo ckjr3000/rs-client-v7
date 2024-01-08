@@ -9,11 +9,8 @@
     <div class="dropdown" :class="{ 'show-dropdown': showDropdown }">
       <router-link to="/" @click="toggleDropdown">Home</router-link>
       <router-link to="/app" @click="toggleDropdown">App</router-link>
-      <!-- <router-link to="/demos" @click="toggleDropdown">Demos</router-link> -->
-      <!-- <router-link to="/gallery" @click="toggleDropdown">Gallery</router-link> -->
-      <router-link to="/contact" @click="toggleDropdown">Contact</router-link>
-      <router-link to="/reportbug" @click="toggleDropdown">Report Bug</router-link>
-      <!-- <router-link to="/privacypolicy" @click="toggleDropdown">Privacy Policy</router-link> -->
+      <!-- <router-link to="/about" @click="toggleDropdown">About</router-link>
+      <router-link to="/reportbug" @click="toggleDropdown">Report Bug</router-link> -->
     </div>
   </nav>
   <router-view/>

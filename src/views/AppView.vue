@@ -2,6 +2,9 @@
     <div v-if="isLoading" class="processing-overlay">
       <p>Loading...</p>
     </div>
+    <div v-if="showChangesModal" id="changes-applied-modal">
+      <p>Changes Applied!</p>
+    </div>
     <canvas 
         v-if="showCanvas" 
         ref="canvas"
@@ -13,6 +16,15 @@
         @touchend="handleOverlayTouchEnd"
         >
     </canvas>
+    <div class="web-share-fallback">
+        <div class="share">
+            <h2>Share image</h2>
+            <button>social link</button>
+            <button>social link</button>
+            <button>social link</button>
+            <button id="close-share-modal">Close</button>
+        </div>
+    </div>
     <div v-if="!uploadedImageUrl">
         <div id="upload-card">
             <p>Upload a selfie to get started.</p>
@@ -40,12 +52,13 @@
     </div>
     <!-- edit buttons -->
     <div v-if="uploadedImageUrl">
+        <button id="discard-button" class="edit-button-secondary" @click="handleDiscard">Discard</button>
         <div class="edit-buttons">
-                <button v-if="editValue > 0 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="edit-button-secondary">Apply Changes</button>
+                <button v-if="editValue > 1 || editType === 'glitch' || editType === 'overlay'" @click="handleApplyChanges" class="edit-button-secondary">Apply Changes</button>
                 <button v-if="changesApplied >= 2" @click="handleUndo" class="edit-button-secondary">Undo</button>
                 <button v-if="appliedImageData" @click="handleReset" class="edit-button-secondary">Reset Image</button>
                 <button v-if="changesApplied > 0" @click="handleSave" class="edit-button-secondary">Save Image</button>
-                <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button>
+                <!-- <button v-if="changesApplied > 0" @click="handleShare" id="shareButton" class="edit-button-secondary">Share Image</button> -->
         </div>
         <div class="edit-buttons">
             <div class="button-input">
@@ -100,40 +113,43 @@
             :src="overlay.src"
             @click="selectOverlay(overlay)"
             @touch="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             >
         </div>
 
         <button 
-            value="masks"
+            value="pose"
             class="overlay-submenu-button"
             @click="toggleOverlaySubmenu">
-            Masks 
-            <font-awesome-icon v-if="!toggleMasks" icon="fa-solid fa-chevron-down"/>
+            Pose 
+            <font-awesome-icon v-if="!togglePose" icon="fa-solid fa-chevron-down"/>
             <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
         </button>
-        <div v-if="toggleMasks" class="overlay-options">
+        <div v-if="togglePose" class="overlay-options">
             <img
-            v-for="overlay in overlayMaskOptions"
+            v-for="overlay in overlayPoseOptions"
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             />
         </div>
 
         <button 
-            value="selfies"
+            value="frames"
             class="overlay-submenu-button"
             @click="toggleOverlaySubmenu">
-            Selfies 
-            <font-awesome-icon v-if="!toggleSelfie" icon="fa-solid fa-chevron-down"/>
+            Frames 
+            <font-awesome-icon v-if="!toggleFrames" icon="fa-solid fa-chevron-down"/>
             <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
         </button>
-        <div v-if="toggleSelfie" class="overlay-options">
+        <div v-if="toggleFrames" class="overlay-options">
             <img
-            v-for="overlay in overlaySelfieOptions"
+            v-for="overlay in overlayFramesOptions"
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             />
         </div>
         
@@ -151,6 +167,7 @@
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             />
         </div>
         
@@ -168,35 +185,39 @@
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             />
         </div>
         
         <button 
-            value="other"
+            value="masks"
             class="overlay-submenu-button"
             @click="toggleOverlaySubmenu">
-            Other 
-            <font-awesome-icon v-if="!toggleOther" icon="fa-solid fa-chevron-down"/>
+            Masks 
+            <font-awesome-icon v-if="!toggleMasks" icon="fa-solid fa-chevron-down"/>
             <font-awesome-icon v-else icon="fa-solid fa-chevron-up"/>
         </button>
-        <div v-if="toggleOther" class="overlay-options">
+        <div v-if="toggleMasks" class="overlay-options">
             <img
-            v-for="overlay in overlayOtherOptions"
+            v-for="overlay in overlayMaskOptions"
             :key="overlay.id"
             :src="overlay.src"
             @click="selectOverlay(overlay)"
+            :class="{ 'selected-overlay': overlay.id === selectedOverlayId }"
             />
         </div>
     </div>
-
+    <Footer />
 </template>
 
 <script>
 import { resizeImage } from '../assets/js/resize.js'
 import { glitchImage } from '../assets/js/glitch'
+import Footer from '../components/Footer.vue'
 
 
 export default {
+    components: { Footer },
     data(){
         return {
             isMobileOrTablet: this.detectMobileOrTablet(),
@@ -209,13 +230,13 @@ export default {
             imageData: null,
             appliedImageData: null,
             currentVersionIndex: -1,
-            redoAvailable: false,
             changesApplied: 0,
+            showChangesModal: false,
             toggleMasks: false,
-            toggleSelfie: false,
+            toggleFrames: false,
             toggleStickers: false,
             toggleTexture: false,
-            toggleOther: false,
+            togglePose: false,
             overlayMaskOptions: [
                 {
                     id: 1,
@@ -253,289 +274,282 @@ export default {
                     id: 9,
                     src: require('@/assets/overlays/masks/9.png')
                 },
-            ],
-            overlaySelfieOptions: [
-                {
-                    id: 1,
-                    src: require('@/assets/overlays/selfie/1.png')
-                },
-                {
-                    id: 2,
-                    src: require('@/assets/overlays/selfie/2.png')
-                },
-                {
-                    id: 3,
-                    src: require('@/assets/overlays/selfie/3.png')
-                },
-                {
-                    id: 4,
-                    src: require('@/assets/overlays/selfie/4.png')
-                },
-                {
-                    id: 5,
-                    src: require('@/assets/overlays/selfie/5.png')
-                },
-                {
-                    id: 6,
-                    src: require('@/assets/overlays/selfie/6.png')
-                },
-                {
-                    id: 7,
-                    src: require('@/assets/overlays/selfie/7.png')
-                },
-                {
-                    id: 8,
-                    src: require('@/assets/overlays/selfie/8.png')
-                },
-                {
-                    id: 9,
-                    src: require('@/assets/overlays/selfie/9.png')
-                },
                 {
                     id: 10,
-                    src: require('@/assets/overlays/selfie/10.png')
+                    src: require('@/assets/overlays/masks/10.png')
                 },
                 {
                     id: 11,
-                    src: require('@/assets/overlays/selfie/11.png')
+                    src: require('@/assets/overlays/masks/11.png')
+                },
+                {
+                    id: 12,
+                    src: require('@/assets/overlays/masks/12.png')
+                },
+                {
+                    id: 13,
+                    src: require('@/assets/overlays/masks/13.png')
+                },
+            ],
+            overlayPoseOptions: [
+                {
+                    id: 14,
+                    src: require('@/assets/overlays/pose/1.png')
+                },
+                {
+                    id: 15,
+                    src: require('@/assets/overlays/pose/2.png')
+                },
+                {
+                    id: 16,
+                    src: require('@/assets/overlays/pose/3.png')
+                },
+                {
+                    id: 17,
+                    src: require('@/assets/overlays/pose/4.png')
+                },
+                {
+                    id: 18,
+                    src: require('@/assets/overlays/pose/5.png')
+                },
+                {
+                    id: 19,
+                    src: require('@/assets/overlays/pose/6.png')
+                },
+                {
+                    id: 20,
+                    src: require('@/assets/overlays/pose/7.png')
+                },
+                {
+                    id: 21,
+                    src: require('@/assets/overlays/pose/8.png')
+                },
+                {
+                    id: 22,
+                    src: require('@/assets/overlays/pose/9.png')
+                },
+                {
+                    id: 23,
+                    src: require('@/assets/overlays/pose/10.png')
+                },
+                {
+                    id: 24,
+                    src: require('@/assets/overlays/pose/11.png')
                 },
             ],
             overlayStickerOptions: [
                 {
-                    id: 1,
+                    id: 25,
                     src: require('@/assets/overlays/stickers/1.png')
                 },
                 {
-                    id: 2,
+                    id: 26,
                     src: require('@/assets/overlays/stickers/2.png')
                 },
                 {
-                    id: 3,
+                    id: 27,
                     src: require('@/assets/overlays/stickers/3.png')
                 },
                 {
-                    id: 4,
+                    id: 28,
                     src: require('@/assets/overlays/stickers/4.png')
                 },
                 {
-                    id: 5,
+                    id: 29,
                     src: require('@/assets/overlays/stickers/5.png')
                 },
                 {
-                    id: 6,
+                    id: 30,
                     src: require('@/assets/overlays/stickers/6.png')
                 },
                 {
-                    id: 7,
+                    id: 31,
                     src: require('@/assets/overlays/stickers/7.png')
                 },
                 {
-                    id: 8,
+                    id: 32,
                     src: require('@/assets/overlays/stickers/8.png')
                 },
                 {
-                    id: 9,
+                    id: 33,
                     src: require('@/assets/overlays/stickers/9.png')
                 },
                 {
-                    id: 10,
+                    id: 34,
                     src: require('@/assets/overlays/stickers/10.png')
                 },
                 {
-                    id: 11,
+                    id: 35,
                     src: require('@/assets/overlays/stickers/11.png')
                 },
                 {
-                    id: 12,
+                    id: 36,
                     src: require('@/assets/overlays/stickers/12.png')
                 },
                 {
-                    id: 13,
+                    id: 37,
                     src: require('@/assets/overlays/stickers/13.png')
                 },
                 {
-                    id: 14,
+                    id: 38,
                     src: require('@/assets/overlays/stickers/14.png')
                 },
                 {
-                    id: 15,
+                    id: 39,
                     src: require('@/assets/overlays/stickers/15.png')
-                },
-                {
-                    id: 16,
-                    src: require('@/assets/overlays/stickers/16.png')
-                },
-                {
-                    id: 17,
-                    src: require('@/assets/overlays/stickers/17.png')
-                },
-                {
-                    id: 18,
-                    src: require('@/assets/overlays/stickers/18.png')
-                },
-                {
-                    id: 19,
-                    src: require('@/assets/overlays/stickers/19.png')
-                },
-                {
-                    id: 20,
-                    src: require('@/assets/overlays/stickers/11.png')
-                },
-                {
-                    id: 21,
-                    src: require('@/assets/overlays/stickers/11.png')
                 },
             ],
             overlayTextureOptions: [
-            {
-                    id: 1,
-                    src: require('@/assets/overlays/textures/1.png')
+                {
+                    id: 40,
+                    src: require('@/assets/overlays/texture/1.png')
                 },
                 {
-                    id: 2,
-                    src: require('@/assets/overlays/textures/2.png')
+                    id: 41,
+                    src: require('@/assets/overlays/texture/2.png')
                 },
                 {
-                    id: 3,
-                    src: require('@/assets/overlays/textures/3.png')
+                    id: 42,
+                    src: require('@/assets/overlays/texture/3.png')
                 },
                 {
-                    id: 4,
-                    src: require('@/assets/overlays/textures/4.png')
+                    id: 43,
+                    src: require('@/assets/overlays/texture/4.png')
                 },
                 {
-                    id: 5,
-                    src: require('@/assets/overlays/textures/5.png')
+                    id: 44,
+                    src: require('@/assets/overlays/texture/5.png')
                 },
                 {
-                    id: 6,
-                    src: require('@/assets/overlays/textures/6.png')
+                    id: 45,
+                    src: require('@/assets/overlays/texture/6.png')
                 },
                 {
-                    id: 7,
-                    src: require('@/assets/overlays/textures/7.png')
+                    id: 46,
+                    src: require('@/assets/overlays/texture/7.png')
                 },
                 {
-                    id: 8,
-                    src: require('@/assets/overlays/textures/8.png')
+                    id: 47,
+                    src: require('@/assets/overlays/texture/8.png')
                 },
                 {
-                    id: 9,
-                    src: require('@/assets/overlays/textures/9.png')
+                    id: 48,
+                    src: require('@/assets/overlays/texture/9.png')
                 },
                 {
-                    id: 10,
-                    src: require('@/assets/overlays/textures/10.png')
+                    id: 49,
+                    src: require('@/assets/overlays/texture/10.png')
                 },
                 {
-                    id: 11,
-                    src: require('@/assets/overlays/textures/11.png')
+                    id: 50,
+                    src: require('@/assets/overlays/texture/11.png')
                 },
                 {
-                    id: 12,
-                    src: require('@/assets/overlays/textures/12.png')
+                    id: 51,
+                    src: require('@/assets/overlays/texture/12.png')
                 },
                 {
-                    id: 13,
-                    src: require('@/assets/overlays/textures/13.png')
+                    id: 52,
+                    src: require('@/assets/overlays/texture/13.png')
                 },
                 {
-                    id: 14,
-                    src: require('@/assets/overlays/textures/14.png')
+                    id: 53,
+                    src: require('@/assets/overlays/texture/14.png')
                 },
                 {
-                    id: 15,
-                    src: require('@/assets/overlays/textures/15.png')
+                    id: 54,
+                    src: require('@/assets/overlays/texture/15.png')
+                },
+                {
+                    id: 55,
+                    src: require('@/assets/overlays/texture/16.png')
+                },
+                {
+                    id: 56,
+                    src: require('@/assets/overlays/texture/17.png')
+                },
+                {
+                    id: 57,
+                    src: require('@/assets/overlays/texture/18.png')
                 },
             ],
-            overlayOtherOptions: [
-            {
-                    id: 1,
-                    src: require('@/assets/overlays/other/1.png')
+            overlayFramesOptions: [
+                {
+                    id: 58,
+                    src: require('@/assets/overlays/frames/1.png')
                 },
                 {
-                    id: 2,
-                    src: require('@/assets/overlays/other/2.png')
+                    id: 59,
+                    src: require('@/assets/overlays/frames/2.png')
                 },
                 {
-                    id: 3,
-                    src: require('@/assets/overlays/other/3.png')
+                    id: 60,
+                    src: require('@/assets/overlays/frames/3.png')
                 },
                 {
-                    id: 4,
-                    src: require('@/assets/overlays/other/4.png')
+                    id: 61,
+                    src: require('@/assets/overlays/frames/4.png')
                 },
                 {
-                    id: 5,
-                    src: require('@/assets/overlays/other/5.png')
+                    id: 62,
+                    src: require('@/assets/overlays/frames/5.png')
                 },
                 {
-                    id: 6,
-                    src: require('@/assets/overlays/other/6.png')
+                    id: 63,
+                    src: require('@/assets/overlays/frames/6.png')
                 },
                 {
-                    id: 7,
-                    src: require('@/assets/overlays/other/7.png')
+                    id: 64,
+                    src: require('@/assets/overlays/frames/7.png')
                 },
                 {
-                    id: 8,
-                    src: require('@/assets/overlays/other/8.png')
+                    id: 65,
+                    src: require('@/assets/overlays/frames/8.png')
                 },
                 {
-                    id: 9,
-                    src: require('@/assets/overlays/other/9.png')
+                    id: 66,
+                    src: require('@/assets/overlays/frames/9.png')
                 },
                 {
-                    id: 10,
-                    src: require('@/assets/overlays/other/10.png')
+                    id: 67,
+                    src: require('@/assets/overlays/frames/10.png')
                 },
                 {
-                    id: 11,
-                    src: require('@/assets/overlays/other/11.png')
+                    id: 68,
+                    src: require('@/assets/overlays/frames/11.png')
                 },
                 {
-                    id: 12,
-                    src: require('@/assets/overlays/other/12.png')
+                    id: 69,
+                    src: require('@/assets/overlays/frames/12.png')
                 },
                 {
-                    id: 13,
-                    src: require('@/assets/overlays/other/13.png')
+                    id: 70,
+                    src: require('@/assets/overlays/frames/13.png')
                 },
                 {
-                    id: 14,
-                    src: require('@/assets/overlays/other/14.png')
+                    id: 71,
+                    src: require('@/assets/overlays/frames/14.png')
                 },
                 {
-                    id: 15,
-                    src: require('@/assets/overlays/other/15.png')
+                    id: 72,
+                    src: require('@/assets/overlays/frames/15.png')
                 },
                 {
-                    id: 16,
-                    src: require('@/assets/overlays/other/16.png')
+                    id: 73,
+                    src: require('@/assets/overlays/frames/16.png')
                 },
                 {
-                    id: 17,
-                    src: require('@/assets/overlays/other/17.png')
+                    id: 74,
+                    src: require('@/assets/overlays/frames/17.png')
                 },
                 {
-                    id: 18,
-                    src: require('@/assets/overlays/other/18.png')
-                },
-                {
-                    id: 19,
-                    src: require('@/assets/overlays/other/19.png')
-                },
-                {
-                    id: 20,
-                    src: require('@/assets/overlays/other/11.png')
-                },
-                {
-                    id: 21,
-                    src: require('@/assets/overlays/other/11.png')
+                    id: 75,
+                    src: require('@/assets/overlays/frames/18.png')
                 },
             ],
             userOverlayUploads: [],
             isOverlaySelected: false,
+            selectedOverlayId: 0,
             overlayPosition: { x: 0, y: 0 },
             overlaySize: { width: 500, height: 500 },
             touchStartPos: null,
@@ -653,6 +667,8 @@ export default {
         handleEditSelect(e){
             const editType = e.target.value;
             this.editType = editType;
+            this.editValue = 1;
+            this.updateCanvas();
         },
         handleValueChange(e){
             const editValue = e.target.value;
@@ -742,16 +758,16 @@ export default {
             const value = e.target.value;
 
             this.$nextTick(() => {
-                if (value === 'masks') {
+                if (value === 'pose') {
+                    this.togglePose = !this.togglePose;
+                } else if (value === 'masks') {
                     this.toggleMasks = !this.toggleMasks;
-                } else if (value === 'selfies') {
-                    this.toggleSelfie = !this.toggleSelfie;
                 } else if (value === 'texture') {
                     this.toggleTexture = !this.toggleTexture;
                 } else if (value === 'stickers') {
                     this.toggleStickers = !this.toggleStickers;
-                } else if (value === 'other') {
-                    this.toggleOther = !this.toggleOther;
+                } else if (value === 'frames') {
+                    this.toggleFrames = !this.toggleFrames;
                 } else {
                     console.log('Error opening overlay sub menu. ', value);
                 }
@@ -762,6 +778,7 @@ export default {
             this.overlayImage = new Image();
             this.overlayImage.src = overlay.src;
             this.isOverlaySelected = true;
+            this.selectedOverlayId = overlay.id;
             this.drawCanvas();
             this.isScaling = false;
             this.scalingStartPos = { x: 0, y: 0 };
@@ -772,12 +789,13 @@ export default {
 
             resizeImage(file, 1080, 1080, (resizedBlob) => {
                 const reader = new FileReader();
+                let idStart = 77 + this.userOverlayUploads.length;
 
                 reader.onload = (event) => {
                     const dataUrl = event.target.result;
 
                     const overlayObject = {
-                        id: this.userOverlayUploads.length + 1,
+                        id: idStart + 1,
                         src: dataUrl
                     };
 
@@ -992,6 +1010,10 @@ export default {
             this.overlaySize = { width: 500, height: 500 };
 
             this.changesApplied++;
+            this.showChangesModal = true;
+            setTimeout(()=>{
+                this.showChangesModal = false;
+            }, 1000)
         },
         saveCanvasVersion(canvasData, editType, editValue, sessionId) {
             fetch(`${process.env.VUE_APP_SERVER_URL}/save-version`, {
@@ -1018,7 +1040,6 @@ export default {
         handleUndo() {
             if (this.currentVersionIndex > 0 || this.changesApplied >= 2) {
                 const newIndex = this.currentVersionIndex +- 1;
-                this.redoAvailable = true;
                 this.$nextTick(
                     this.getVersion(newIndex)
                 );
@@ -1096,19 +1117,20 @@ export default {
             // Convert the temporary canvas to a data URL (base64-encoded image)
             const imageDataURL = tempCanvas.toDataURL("image/jpeg");
 
-            // Use the Web Share API to share the image
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Edited Image',
-                    files: [new File([this.dataURLtoBlob(imageDataURL)], 'rs_image.jpg')],
-                })
-                .then(() => console.log('Successful share'))
-                .catch((error) => console.log('Error sharing:', error));
-            } else {
-                console.log('Web Share API not supported');
-                // implement fallback logic
-            }
+            const shareOverlay = document.getElementsByClassName('web-share-fallback');
+            const shareModal = document.getElementsByClassName('share');
+            shareOverlay[0].classList.add('show-share');
+            shareModal[0].classList.add('show-share');
+
+            const shareButton = document.getElementById('close-share-modal');
+            shareButton.addEventListener('click', () => {
+                shareOverlay[0].classList.remove('show-share');
+                shareModal[0].classList.remove('show-share');
+            })
         },
+        handleDiscard(){
+            location.reload();
+        }
     }
 }
 </script>
@@ -1228,6 +1250,10 @@ canvas {
     margin: 5px auto;
 }
 
+.selected-overlay {
+  border: 2px solid #ff0000; /* Change this to your desired border color */
+}
+
 .processing-overlay {
     position: absolute;
     top: 50%;
@@ -1239,11 +1265,69 @@ canvas {
     font-weight: bold;
   }
 
+.web-share-fallback {
+    opacity: 1;
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,.5);
+}
+
+.web-share-fallback, .share {
+    display: none;
+}
+
+.show-share {
+    display: block;
+}
+
+.share {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 30%;
+    margin: auto;
+    width: 50%;
+    z-index: 1;
+    padding: 1em;
+    background: white;
+}
+
+.share h2 {
+    margin: 0;
+}
+
+.share button {
+    border: none;
+    padding: .8em 1.2em;
+    width: 32%;
+    cursor: pointer;
+    margin: 3em 0.2em 0.2em 0.2em;
+}
+
+#changes-applied-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+#discard-button {
+    margin-top: 10px;
+}
+
 /* 
 ensures that child elements of buttons do not prevent button click events from firing 
 https://css-tricks.com/slightly-careful-sub-elements-clickable-things/
 */
-button > * {
+.overlay-submenu-button > * {
     pointer-events: none;
 }
 
