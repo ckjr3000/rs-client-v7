@@ -9,8 +9,8 @@
     <div class="dropdown" :class="{ 'show-dropdown': showDropdown }">
       <router-link to="/" @click="toggleDropdown">Home</router-link>
       <router-link to="/app" @click="toggleDropdown">App</router-link>
-      <router-link to="/about" @click="toggleDropdown">About</router-link>
-      <router-link to="/reportbug" @click="toggleDropdown">Report Bug</router-link>
+      <!-- <router-link to="/about" @click="toggleDropdown">About</router-link>
+      <router-link to="/reportbug" @click="toggleDropdown">Report Bug</router-link> -->
     </div>
   </nav>
   <router-view/>
