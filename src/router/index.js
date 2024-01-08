@@ -18,16 +18,16 @@ const routes = [
   //   name: 'gallery',
   //   component: () => import('../views/GalleryView.vue')
   // },
-  {
-    path: '/reportbug',
-    name: 'reportbug',
-    component: () => import('../views/ReportBugView.vue')
-  },
-  {
-    path: '/about',
-    name: 'about',
-    component: () => import('../views/AboutView.vue')
-  },
+  // {
+  //   path: '/reportbug',
+  //   name: 'reportbug',
+  //   component: () => import('../views/ReportBugView.vue')
+  // },
+  // {
+  //   path: '/about',
+  //   name: 'about',
+  //   component: () => import('../views/AboutView.vue')
+  // },
 ]
 
 const router = createRouter({
